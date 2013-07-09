@@ -7,7 +7,7 @@ A StudentRND Labs project
 
 ## Authors ##
 
-- Kevin L.
+- Kevin L. :D
 - Michael L.
 - Nitin S.
 - Siddharth M.
