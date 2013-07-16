@@ -159,7 +159,7 @@ class ImageProvider(object):
         self.images_queue.put(img.toString())
         
         self.worker = multiprocessing.Process(target=_get_features, args=(
-            feature, 1, size, self.features_queue, self.images_queue))
+            feature, 0.5, size, self.features_queue, self.images_queue))
         self.worker.start()
         
     def get_features(self):
