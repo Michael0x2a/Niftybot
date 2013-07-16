@@ -1,18 +1,28 @@
 #!/usr/bin/env python
 
+import time
+
 import basic_hardware
 import sensor_analysis
-import time
+
+import Arduino
 
 def no_op():
     pass
 
 class Robot(object):
-    def __init__(self, arduino):
-        self.arduino = arduino
+    def __init__(self, arduino=None):
+        if arduino is None:
+            try:
+                self.arduino = Arduino.Arduino()
+            except:
+                self.arduino = basic_hardware.FakeArduino()
+        else:
+            self.arduino = arduino
         self.diagnostic_light = basic_hardware.LedLight(self.arduino, 13)
         self.left_wheel = basic_hardware.Motor(self.arduino, 14)
         self.right_wheel = basic_hardware.Motor(self.arduino, 15)
+        self.camera = basic_hardware.Camera(self.arduino)
         
     def set_speed(self, left, right):
         self.left_wheel.set_speed(left)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import SimpleCV as cv
+import SimpleCV as scv
 
 import Queue
 import threading
@@ -33,80 +33,114 @@ features = [
     'upper_body2.xml']
     
 def get_image(cam, gray = False):
-    img = cam.getImage().flipHorizontal()
+    img = cam.getImage()
     if gray:
         img = img.toGray()
     return img
     
     
 def simple_tracking():
-    cam = cv.Camera(0)
-    disp = cv.Display((640, 480))
+    '''An example with no multithreading.'''
+    cam = scv.Camera(0)
+    disp = scv.Display((640, 480))
+    
+    scale = 0.5
+    increase = round(1 / scale)
     
     while disp.isNotDone():
         img = get_image(cam)
-        features = img.scale(0.25).findHaarFeatures('face.xml')
+        features = img.scale(scale).findHaarFeatures('face.xml')
         if features is not None:
             for feature in features:
                 x, y = feature.topLeftCorner()
                 width = feature.width()
                 height = feature.height()
-                img.drawRectangle(x * 4, y * 4, width * 4, height * 4)
+                img.drawRectangle(x * increase, y * increase, width * increase, height * increase, scv.Color.RED, 3)
         img.save(disp)
         #img.show()
 
 
-def get_features(size, images_queue, features_queue):
-    import SimpleCV as cv
+def get_features(quality, size, features_queue, images_queue):
+    '''The separate process.'''
     while True:
         try:
             raw = images_queue.get()
-            bmp = cv.CreateImageHeader(size, cv.IPL_DEPTH_8U, 3)
-            cv.SetData(bmp, raw)
-            cv.CvtColor(bmp, bmp, cv.CV_RGB2BGR)
-            img = cv.Image(bmp)
-            features = img.findHaarFeatures('face.xml')
+            
+            bmp = scv.cv.CreateImageHeader(size, scv.cv.IPL_DEPTH_8U, 3)
+            scv.cv.SetData(bmp, raw)
+            scv.cv.CvtColor(bmp, bmp, scv.cv.CV_RGB2BGR)
+            img = scv.Image(bmp)
+            
+            features = img.scale(quality).findHaarFeatures('face.xml')
+            
             if features is not None:
-                important = [(f.topLeftCorner(), f.width(), f.height()) for f in features]
-                features_queue.put(important, block=False)
+                output = []
+                scale = round(1 / quality)
+                for feature in features:
+                    x, y = feature.topLeftCorner()
+                    output.append({
+                        'height': feature.height() * scale,
+                        'width': feature.width() * scale,
+                        'top_left_x': x * scale,
+                        'top_right_x': y * scale,
+                        'center_x': feature.x * scale,
+                        'center_y': feature.y * scale,
+                        'full_feature': feature
+                    })
+                features_queue.put(output)
         except Queue.Empty:
             pass
         except Queue.Full:
             pass
+        
+
 
 def normal_image():
-    cam = cv.Camera(0)
-    disp = cv.Display((640, 480))
+    '''A multithreaded example'''
+    cam = scv.Camera(0)
 
-    features_queue = Queue.Queue(maxsize=5)
-    features_queue.put(None)
-    
     img = get_image(cam)
-    images_queue = Queue.Queue()
-    images_queue.put(img)
+    size = img.size()
+
+    features_queue = multiprocessing.Queue(maxsize=5)
     
-    worker = multiprocessing.Process(target=get_features, args=(img.size(), images_queue, features_queue))
-    worker.daemon = True
+    images_queue = multiprocessing.Queue(maxsize=5)
+    images_queue.put(img.toString())
+    
+    worker = multiprocessing.Process(target=get_features, args=(1, size, features_queue, images_queue))
     worker.start()
     
-    features = None
-    
-    while disp.isNotDone():
-        img = get_image(cam)
-        images_queue.put(img.toString(), block=False)
+    try:
+        disp = scv.Display((640, 480))
         
-        try:
-            features = features_queue.get(block=False)
-        except Queue.Empty:
-            pass
+        features = None
+        
+        while disp.isNotDone():
+            img = get_image(cam)
             
-        if features is not None:
-            for ((x, y), width, height) in features:
-                img.drawRectangle(x, y, width, height, color=cv.Color.GREEN, width = 5)
-        
-        img.save(disp)
+            try:
+                features = features_queue.get(False)
+                images_queue.put(img.toString())
+            except Queue.Empty:
+                pass
+            
+            if features is not None:
+                for feature in features:
+                    img.drawRectangle(
+                        feature['top_left_x'],
+                        feature['top_right_x'],
+                        feature['width'],
+                        feature['height'], 
+                        color=scv.Color.GREEN, 
+                        width = 5)
+                
+            img = img.applyLayers()
+            img = img.flipHorizontal()
+            img.save(disp)
+    finally:
+        worker.join()
         
 if __name__ == '__main__':
-    #normal_image()
-    simple_tracking()
+    normal_image()
+    #simple_tracking()
 

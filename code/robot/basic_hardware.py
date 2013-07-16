@@ -21,6 +21,9 @@ how the Arduino works.
 
 import Arduino
 import time
+import SimpleCV as cv
+
+
         
 class LedLight(object):
     '''
@@ -60,8 +63,10 @@ class Motor(object):
     def __init__(self, arduino, pin):
         self.arduino = arduino
         self.pin = pin
+        self.speed = 0
         
     def set_speed(self, speed):
+        self.speed = speed
         pass
         
 class Servo(object):
@@ -76,8 +81,10 @@ class Servo(object):
     def __init__(self, arduino, pin):
         self.arduino = arduino
         self.pin = pin
+        self.position = 0
         
-    def set_position(self, speed):
+    def set_position(self, position):
+        self.position = position
         pass
         
 class Encoder(object):
@@ -87,6 +94,8 @@ class Encoder(object):
     def __init__(self, arduino, pin):
         self.arduino = arduino
         self.pin = pin
+        self.rate = 0
+        self.distance = 0
         
     def get_rate(self):
         pass
@@ -100,9 +109,10 @@ class Camera(object):
     '''
     def __init__(self, arduino):
         self.arduino = arduino
+        self.cam = cv.Camera(0)
         
-    def get_raw_image(self):
-        pass
+    def get_image(self):
+        return self.cam.getImage()
         
     def enable_camera(self):
         pass
@@ -110,6 +120,18 @@ class Camera(object):
     def disable_camera(self):
         pass
         
+        
+class FakeArduino(object):
+    def __init__(self, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        self.pins = {}
+        
+    def pinMode(self, pin, mode):
+        self.pins[pin] = mode
+        
+    def digitalWrite(self, pin, state):
+        self.pins[pin] = state
         
 def test():
     '''
