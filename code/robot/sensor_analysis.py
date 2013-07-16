@@ -22,8 +22,9 @@ This layer is currently extremely empty.
 
 from __future__ import division
 import multiprocessing
+import Queue
 
-import SimpleCV as cv
+import SimpleCV as scv
 
 def get_human_locations(image, quality = 0.25, target_feature="upper_body"):
     '''
@@ -110,7 +111,7 @@ def get_human_locations(image, quality = 0.25, target_feature="upper_body"):
             })
         return output
         
-def _get_features(feature, quality, size, features_queue, images_queue):
+def _get_features(feat, quality, size, features_queue, images_queue):
     while True:
         try:
             raw = images_queue.get()
@@ -120,7 +121,7 @@ def _get_features(feature, quality, size, features_queue, images_queue):
             scv.cv.CvtColor(bmp, bmp, scv.cv.CV_RGB2BGR)
             img = scv.Image(bmp)
             
-            features = img.scale(quality).findHaarFeatures(feature + '.xml')
+            features = img.scale(quality).findHaarFeatures(feat + '.xml')
             
             if features is not None:
                 output = []

@@ -14,13 +14,15 @@ import SimpleCV as cv
 import pygame
 
 def inspect(thing, layers=1, prettyprint = False):
+    if type(thing) == dict:
+        return thing
     output = copy.deepcopy(thing.__dict__)
     if layers > 1:
         for attr, value in thing.__dict__.items():
             if isinstance(object, (type, types.ClassType)):
                 output[attr] = inspect(value, layers - 1)
     if prettyprint:
-        return json.dumps(output, indent=4, default=str)
+        return json.dumps(output, indent=4, default=None)
     else:
         return output
         
@@ -36,7 +38,7 @@ class ControlPanel(object):
         self.robot = robot
         self.state = state
         
-        self.to_inspect = [(self.robot, 2), (self.state, 1)]
+        self.to_inspect = [(self.robot, 2), (self.state, 2)]
         self.images = sensor_analysis.ImageProvider(robot.camera.cam)
         self.images.start('face')
         
