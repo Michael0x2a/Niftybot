@@ -106,7 +106,7 @@ def main():
     Python project, importing it will not automagically start up
     the robot and do weird things. 
     '''
-    pass
+    user_interface.main()
     
 if __name__ == '__main__':
     main()

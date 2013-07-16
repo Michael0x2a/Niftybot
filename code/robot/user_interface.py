@@ -134,4 +134,3 @@ def test_inspector():
     
 if __name__ == '__main__':
     main()
-    #test_inspector()

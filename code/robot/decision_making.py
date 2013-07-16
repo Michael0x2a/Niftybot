@@ -54,10 +54,10 @@ class ApproachState(object):
         if len(humans) == 0:
             return 'waiting'
         self.x_offset = centroid[0]
-        if self.x_offset < 200:
+        if self.x_offset < 300:
             self.robot.set_left_speed(0.5)
             self.message = "Rotate left"
-        elif self.x_offset > 280:
+        elif self.x_offset > 340:
             self.robot.set_right_speed(0.5)
             self.message = "Rotate right"
         else:

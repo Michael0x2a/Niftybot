@@ -113,16 +113,14 @@ def get_human_locations(image, quality = 0.25, target_feature="upper_body"):
         
 def _get_features(feat, quality, size, features_queue, images_queue):
     while True:
+        output = None
         try:
-            raw = images_queue.get()
-            
+            raw = images_queue.get(timeout = 2)
             bmp = scv.cv.CreateImageHeader(size, scv.cv.IPL_DEPTH_8U, 3)
             scv.cv.SetData(bmp, raw)
             scv.cv.CvtColor(bmp, bmp, scv.cv.CV_RGB2BGR)
             img = scv.Image(bmp)
-            
             features = img.scale(quality).findHaarFeatures(feat + '.xml')
-            
             if features is not None:
                 output = []
                 scale = round(1 / quality)
@@ -137,11 +135,12 @@ def _get_features(feat, quality, size, features_queue, images_queue):
                         'center_y': feature.y * scale,
                         'full_feature': feature
                     })
-                features_queue.put(output)
         except Queue.Empty:
             pass
         except Queue.Full:
-            features_queue.get()
+            pass    
+        features_queue.put(output)
+        
           
           
 class ImageProvider(object):
@@ -168,7 +167,8 @@ class ImageProvider(object):
         try:
             features = self.features_queue.get(False)
             self.images_queue.put(img.toString())
-            self.features = features
+            if features is not None:
+                self.features = features
         except Queue.Empty:
             pass
         
