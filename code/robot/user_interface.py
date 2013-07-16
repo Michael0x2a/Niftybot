@@ -43,16 +43,24 @@ class ControlPanel(object):
         self.images.start('face')
         
     def mainloop(self):
-        while True:
-            image = self.robot.camera.get_image()
-            image = image.flipHorizontal()
-            features = self.images.get_features()
-            
-            self.draw_camera_feed(image)
-            self.draw_features(features)
-            self.draw_inspected(660, 20)
-            
-            self.heartbeat()
+        try:
+            while True:
+                image = self.robot.camera.get_image()
+                image = image.flipHorizontal()
+                
+                features = self.images.get_features()
+                
+                self.state.loop(features)
+                
+                self.draw_camera_feed(image)
+                self.draw_features(features)
+                self.draw_inspected(660, 20)
+                
+                
+                self.process_events()
+                self.heartbeat()
+        finally:
+            self.images.end()
             
     def draw_camera_feed(self, image):
         surface = image.getPGSurface()

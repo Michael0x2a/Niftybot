@@ -31,9 +31,7 @@ class WaitingState(object):
     def startup(self):
         pass
         
-    def loop(self):
-        image = robot.camera.get_image()
-        humans = sensor_analysis.get_human_locations(image)
+    def loop(self, humans):
         if len(humans) > 0:
             return "approach"
         return None
@@ -48,13 +46,13 @@ class ApproachState(object):
         self.robot = robot
         self.x_offset = 0
         
-        self.images = sensor_analysis.ImageProvider(robot.camera.cam)
-        
     def startup(self):
-        self.images.start('face')
+        pass
         
-    def loop(self):
-        centroid = self.get_centroid(self.images.get_features())
+    def loop(self, humans):
+        centroid = sensor_analysis.get_centroid(humans)
+        if len(humans) == 0:
+            return 'waiting'
         self.x_offset = centroid[0]
         if self.x_offset < 200:
             self.robot.set_left_speed(0.5)
@@ -65,9 +63,10 @@ class ApproachState(object):
         else:
             self.robot.set_forward_speed(0.5)
             self.message = "Go forward"
+        return None
         
     def end(self):
-        self.images.end()
+        pass
         
         
 class StateMachine(object):
@@ -78,8 +77,8 @@ class StateMachine(object):
         
         self.state.startup()
         
-    def loop(self):
-        next = self.state.loop()
+    def loop(self, input):
+        next = self.state.loop(input)
         if next is not None and next in self.states:
             self.state.end()
             self.state = self.states[next]

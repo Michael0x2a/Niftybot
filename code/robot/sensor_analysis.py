@@ -141,7 +141,7 @@ def _get_features(feat, quality, size, features_queue, images_queue):
         except Queue.Empty:
             pass
         except Queue.Full:
-            pass
+            features_queue.get()
           
           
 class ImageProvider(object):
@@ -153,9 +153,9 @@ class ImageProvider(object):
         img = self.cam.getImage().flipHorizontal()
         size = img.size()
 
-        self.features_queue = multiprocessing.Queue(maxsize=5)
+        self.features_queue = multiprocessing.Queue()
         
-        self.images_queue = multiprocessing.Queue(maxsize=5)
+        self.images_queue = multiprocessing.Queue()
         self.images_queue.put(img.toString())
         
         self.worker = multiprocessing.Process(target=_get_features, args=(
@@ -175,7 +175,7 @@ class ImageProvider(object):
         return self.features
         
     def end(self):
-        self.worker.end()
+        self.worker.join()
         
 def get_centroid(features):
     center_x = []
