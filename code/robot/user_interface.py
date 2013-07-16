@@ -22,9 +22,9 @@ def inspect(thing, layers=1, prettyprint = False):
             if isinstance(object, (type, types.ClassType)):
                 output[attr] = inspect(value, layers - 1)
     if prettyprint:
-        return json.dumps(output, indent=4, default=None)
+        return json.dumps(output, indent=4, default=lambda x: '')
     else:
-        return output
+        return json.loads(json.dumps(output, default = lambda x: str(x) if '<' not in str(x) else 'obj'))
         
     
 class ControlPanel(object):
@@ -85,6 +85,7 @@ class ControlPanel(object):
                     out = str(name) + " : "
                 else:
                     out = str(name) + " : " + str(pair)
+                
                 self.screen.blit(
                     self.font.render(out, True, (255,255,255)), 
                     (x, y + offset + index * 16))

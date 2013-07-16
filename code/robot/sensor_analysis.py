@@ -150,7 +150,7 @@ class ImageProvider(object):
         self.features = []
         
     def start(self, feature):
-        img = self.cam.getImage()
+        img = self.cam.getImage().flipHorizontal()
         size = img.size()
 
         self.features_queue = multiprocessing.Queue(maxsize=5)
@@ -163,7 +163,7 @@ class ImageProvider(object):
         self.worker.start()
         
     def get_features(self):
-        img = self.cam.getImage()
+        img = self.cam.getImage().flipHorizontal()
         
         try:
             features = self.features_queue.get(False)
