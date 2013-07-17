@@ -57,29 +57,51 @@ def inspect(thing, layers=1, prettyprint = False):
     
     Arguments:
     
-        -   thing:  
-            The object to inspect.
-        -   layers:  
-            How deep to analyze the object. If layers equals 1, it only returns
-            a dict of attribtes of `thing`. If layers equals 2, it inspects any
-            objects contained within the `thing` object.
-        -   prettyprint:  
-            Defaults to false. IF set to true, the output would be a neatly
-            formated JSON string.
+    -   thing:  
+        The object to inspect.
+    -   layers:  
+        How deep to analyze the object. If layers equals 1, it only returns
+        a dict of attribtes of `thing`. If layers equals 2, it inspects any
+        objects contained within the `thing` object.
+    -   prettyprint:  
+        Defaults to false. If set to true, the output would be a neatly
+        formated JSON string.
+        
+    Returns:
+    
+    -   A dictionary mapping all the attributes inside an arbitary object
+        to their values.
+        
+    How it works:
+    
+    The key insight to realize is that every object in Python contains an
+    automatically created `__dict__` attribute which is a dictionary mapping
+    attributes to their values. 
+    
+    This is exactly what we want. The bulk of the code is spent filtering
+    out useless values (such as non-primitive objects), and inspecting 
+    nested objects if `layers` is greater then `.
     '''
     if type(thing) == dict:
         return thing
     output = copy.deepcopy(thing.__dict__)
+    
     if layers > 1:
         for attr, value in thing.__dict__.items():
             if isinstance(object, (type, types.ClassType)):
                 output[attr] = inspect(value, layers - 1)
+                
     if prettyprint:
         return json.dumps(output, indent=4, default=lambda x: '')
     else:
+        # This is a very clumsy way of filtering out objects that don't
+        # have a sensible string representation.
+        # Doing str(obj) for an arbitrary object returns something like:
+        #
+        #   `<robot_actions.Robot instance at 0x0287B498>`
         return json.loads(json.dumps(
             output, 
-            default = lambda x: str(x) if '<' not in str(x) else 'obj'))
+            default = lambda x: str(x) if 'instance at' not in str(x) else '<obj>'))
         
     
 class ControlPanel(object):
@@ -98,6 +120,10 @@ class ControlPanel(object):
         
         self.to_inspect = [(self.robot, 2), (self.state, 2)]
         self.images = sensor_analysis.ImageProvider(robot.camera.cam)
+        
+        # Currently detects the face. See the source code of 
+        # `sensor_analysis.find_human_features` for a full list of possible
+        # features.
         self.images.start('face')
         
     def mainloop(self):

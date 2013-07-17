@@ -46,8 +46,6 @@ import time
 
 import Arduino
 import SimpleCV as scv
-
-
         
 class LedLight(object):
     '''
@@ -56,10 +54,15 @@ class LedLight(object):
     '''
     def __init__(self, arduino, pin):
         '''
-        self    = For an explanation on what `self` is, see the following
-                  link: <http://stackoverflow.com/q/6990099/646543>
-        arduino = An arduino object
-        pin     = The pin the light is connected to
+        Arguments:
+        
+        -   self:  
+            For an explanation on what `self` is, see the following
+            link: <http://stackoverflow.com/q/6990099/646543>
+        -   arduino:  
+            An arduino object
+        -   pin:  
+            The pin the light is connected to
         '''
         self.arduino = arduino
         self.pin = pin
