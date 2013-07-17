@@ -11,17 +11,41 @@ other actuators in higher layers without having to remember the details of
 how the Arduino works. 
 
 
+## Confusing bits ##
+
+If you'll notice, pretty much every single class within this module contains
+a variable of some sort describing their state. For example, the Motor
+class contains `self.speed`, which is a variable describing the current speed
+of the motor. 
+
+Technically, these descriptive variables are unnecessary, since it isn't used
+at all in the class. However, these variables make it easier for us to easily 
+tell what state the Motor is in, and are necessary if you want the user interface
+to properly inspect the Motor object and report the speed.
+
+Whenever you are making any new class within this module, be sure to include
+variables that will fully describe the state of the object at any given time
+because of these two reasons.
+
+
 ## Dependencies ##
 
 *   This layer uses a 3rd party Arduino library called 
     the [Python Arduino Command API][pyca]
     
 [pyca]: https://github.com/thearn/Python-Arduino-Command-API
+
+
+## Up next ##
+
+After reading this file, move on to `sensor_analysis.py`
 '''
 
-import Arduino
+
 import time
-import SimpleCV as cv
+
+import Arduino
+import SimpleCV as scv
 
 
         
@@ -58,16 +82,23 @@ class LedLight(object):
         
 class Motor(object):
     '''
-    Currently not implemented.
+    Creates a single motor, and sets the speed.
     '''
     def __init__(self, arduino, pin):
         self.arduino = arduino
         self.pin = pin
         self.speed = 0
-        
+    
     def set_speed(self, speed):
+        '''
+        This sets the speed of the motor. It will continue spinning
+        at the given speed indefinitely until given another speed. Calling
+        motor.set_speed(0) will shut off the motor.
+        
+        The speed must be within -1 and 1 (for now).
+        '''
+        assert(-1 <= speed <= 1)
         self.speed = speed
-        pass
         
 class Servo(object):
     '''
@@ -85,11 +116,12 @@ class Servo(object):
         
     def set_position(self, position):
         self.position = position
-        pass
         
 class Encoder(object):
     '''
     Currently not implemented.
+    
+    Returns either how fast or how long some motor or servo has spun.
     '''
     def __init__(self, arduino, pin):
         self.arduino = arduino
@@ -105,24 +137,43 @@ class Encoder(object):
         
 class Camera(object):
     '''
-    Currently not implemented.
+    Represents a "camera" image. Currently grabs the image from
+    the webcam, not from the Arduino.
     '''
     def __init__(self, arduino):
         self.arduino = arduino
-        self.cam = cv.Camera(0)
-        
+        self.cam = scv.Camera(0)
+     
     def get_image(self):
+        '''
+        Returns a single frame from the camera as a SimpleCV Image
+        object.
+        '''
         return self.cam.getImage()
         
     def enable_camera(self):
+        '''Currently not implemented; the camera is always enabled.'''
         pass
         
     def disable_camera(self):
+        '''Currently not implemented; the camera is always enabled.'''
         pass
         
         
 class FakeArduino(object):
+    '''
+    Represents a fake Arduino so we can test the code when a real Arduino is
+    not connected.
+    
+    Only the methods we used above are implemented inside this fake class.
+    Add more as necessary.
+    '''
     def __init__(self, *args, **kwargs):
+        '''
+        This constructor accepts an arbitrary amount of arguments and keyword
+        arguments so that it can accept whatever arguments you feed to the 
+        actual Arduino.
+        '''
         self.args = args
         self.kwargs = kwargs
         self.pins = {}

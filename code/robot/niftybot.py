@@ -3,6 +3,9 @@
 # niftybot.py #
 
 
+Note: if you haven't already, read `README.txt`.
+
+
 ## About the documentation ##
 
 I've decided that I'm going to extensively document every aspect of 
@@ -80,6 +83,13 @@ is using. Here are some more [detailed reasons][ll] why.
 
   [ll]: http://programmers.stackexchange.com/q/198783/45762
   
+We also have an additional layer called `errors`. Strictly speaking, this
+layer isn't part of the heirarchy listed above, and contains method to 
+handle emergency error-handling or logging. Basically, it contains code
+as part of a last-ditch effort to cleanly shut the program down and 
+generate a log when the program encounters an error that it cannot 
+recover from.
+  
   
 ## Up next... ##
 
@@ -92,11 +102,19 @@ the second (`sensor_analysis`), etc.
 # The code you write in `batman.py` can be accessed by doing
 # `import batman`.
 
+# These modules are part of Python's standard library
+import sys
+import traceback
+
+# These modules are ones that we wrote
 import basic_hardware
 import sensor_analysis
 import robot_actions
 import decision_making
 import user_interface
+import errors
+
+import cv2
 
 def main():
     '''
@@ -105,9 +123,24 @@ def main():
     so that if I ever need to use this file (`niftybot.py`) from another
     Python project, importing it will not automagically start up
     the robot and do weird things. 
-    '''
-    user_interface.main()
     
+    It also contains last-ditch error handling. If the code throws an 
+    exception, it will be caught and logged here.
+    '''
+    try:
+        user_interface.main()
+    except SystemExit:
+        pass
+    except Exception:
+        error = traceback.format_exc()
+        errors.log('Top-level exception: ' + error)
+        errors.error('The program encountered an unexpected error.\n\n' + 
+            'Please see "log.txt" for details.')
+    
+# The "if __name__ == '__main__' bit is a common idiom in Python.
+# See [this Stackoverflow answer][mn] for details.
+# 
+#   [mn]: http://stackoverflow.com/a/419185
 if __name__ == '__main__':
     main()
     

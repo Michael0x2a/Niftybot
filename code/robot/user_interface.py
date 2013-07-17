@@ -1,5 +1,40 @@
 #!/usr/bin/env python
+'''
+# user_interface.py
 
+
+## Introduction ##
+
+This layer contains information and code to display what is currently
+happening in the program.
+
+The user interface layer is, in the end, essentially superficial.
+The underlying code should be flexible enough to be adapted to any 
+new UI without having to change in any manner, and should be able to
+run independently with or without the user interface.
+
+However, in practice, the user_interface provides the high-level logic 
+to power the state machine.
+
+
+## Confusing bits ##
+
+Technically, we could have used SimpleCV's display window. However, I 
+chose to use pygame for the additional flexibility it gave us.
+
+
+## Dependencies ##
+
+This layer requires every module within this project, the SimpleCV
+library, and the pygame library to display the UI.
+
+
+## Up next ##
+
+After reading this file, move to `errors.py`
+'''
+
+# Libraries included within the Python standard library
 import sys
 import json
 import copy
@@ -13,7 +48,25 @@ import decision_making
 import SimpleCV as cv
 import pygame
 
+
 def inspect(thing, layers=1, prettyprint = False):
+    '''
+    This function performs a bit of meta-programming to inspect 
+    any arbitrary python object, and returns a dictionary mapping all of the 
+    objects attributes (but not methods!) to their values.
+    
+    Arguments:
+    
+        -   thing:  
+            The object to inspect.
+        -   layers:  
+            How deep to analyze the object. If layers equals 1, it only returns
+            a dict of attribtes of `thing`. If layers equals 2, it inspects any
+            objects contained within the `thing` object.
+        -   prettyprint:  
+            Defaults to false. IF set to true, the output would be a neatly
+            formated JSON string.
+    '''
     if type(thing) == dict:
         return thing
     output = copy.deepcopy(thing.__dict__)
@@ -24,10 +77,15 @@ def inspect(thing, layers=1, prettyprint = False):
     if prettyprint:
         return json.dumps(output, indent=4, default=lambda x: '')
     else:
-        return json.loads(json.dumps(output, default = lambda x: str(x) if '<' not in str(x) else 'obj'))
+        return json.loads(json.dumps(
+            output, 
+            default = lambda x: str(x) if '<' not in str(x) else 'obj'))
         
     
 class ControlPanel(object):
+    '''
+    This class is the main UI.
+    '''
     def __init__(self, robot, state):
         pygame.init()
         self.size = (1200, 480)
@@ -43,6 +101,11 @@ class ControlPanel(object):
         self.images.start('face')
         
     def mainloop(self):
+        '''
+        This runs the program indefinitely.
+        
+        It first updates the state machine, then updates the graphics.
+        '''
         try:
             while True:
                 image = self.robot.camera.get_image()
@@ -63,10 +126,13 @@ class ControlPanel(object):
             self.images.end()
             
     def draw_camera_feed(self, image):
+        '''Draws the camera image to the pygame surface.'''
         surface = image.getPGSurface()
         self.screen.blit(surface, (0, 0))
             
     def draw_features(self, features):
+        '''Draws the list of features as a series of rectangles to the 
+        pygame surface.'''
         for feature in features:
             pygame.draw.rect(
                 self.screen, 
@@ -86,6 +152,9 @@ class ControlPanel(object):
             5)
             
     def draw_inspected(self, x, y):
+        '''Draw a clean version of the list of features on the pygmae surface.
+        
+        Each object to be inspected gets their own column.'''
         def vert(text, x, y):
             offset = 0
             for index, (name, pair) in enumerate(text.items()):
@@ -109,6 +178,8 @@ class ControlPanel(object):
             
             
     def process_events(self):
+        '''Keeps the user interface GUI from going hairwire, and responds to
+        user data input.'''
         event = pygame.event.poll()
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -116,6 +187,7 @@ class ControlPanel(object):
             sys.exit()
             
     def heartbeat(self):
+        '''Contains the bare minimum to keep the program alive.'''
         pygame.display.flip()
         self.screen.fill((0,0,0))
             
