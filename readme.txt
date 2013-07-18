@@ -31,4 +31,4 @@ prerequisite libraries, start from `code/nitybot.py`.
 - Kevin L. :D
 - Michael L.
 - Nitin S.
-- Siddharth M.
+- Siddharth M. : O
