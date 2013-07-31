@@ -72,49 +72,7 @@ import datetime
 import time
 from datetime import datetime
 import SimpleCV as scv
-'''
-from datetime import datetime
-import time
-
-def image_process(image, quality, target_feature):
-
-    features = image.scale(quality).findHaarFeatures(target_feature + ".xml")
-    if features is None:
-        return []
-    else:
-        output = []
-        for feature in features:
-            scale = round(1 / quality)
-            x, y = feature.topLeftCorner()
-            output.append({
-                'height': feature.height() * scale,
-                'width': feature.width() * scale,
-                'top_left_x': x * scale,
-                'top_right_x': y * scale,
-                'center_x': feature.x * scale,
-                'center_y': feature.y * scale,
-                'full_feature': feature
-            })
-        return output
-
-
-def loop():
-    cam = scv.Camera()
-    while True:
-        start = datetime.now()
-        img = cam.getImage()
-        end = datetime.now()
-        delta = end-start
-        print("cam capture time "+time_string(delta))delta
-        
-        processing_start = datetime.now()
-        image_process(img, 0.5, "face")
-        processing_end = datetime.now()
-        processing_delta = processing_end-processing_start
-        print("processing time" + str(processing_delta.seconds+processing_delta.microseconds/1000000.0))
-        time.sleep(0.5)
-loop()
-'''        
+     
 
 def time_string(start, end):
     delta = end-start
@@ -256,7 +214,7 @@ def _get_features(features_queue, images_queue, size, quality, target_feature, p
         try:
             # Get the image, but give up if it takes longer then 2 seconds to get.
             raw = images_queue.get(timeout = 2)
-            print("Size of image queue after get: "+str(images_queue.qsize())+" (_get_features())")
+            # print("Size of image queue after get: "+str(images_queue.qsize())+" (_get_features())")
             # Convert the raw image string into a SimpleCV image object.
             bmp = scv.cv.CreateImageHeader(size, scv.cv.IPL_DEPTH_8U, 3)
             scv.cv.SetData(bmp, raw)
@@ -284,13 +242,13 @@ def _get_features(features_queue, images_queue, size, quality, target_feature, p
             
             end = datetime.now()
             
-            print("Features acquired from provider #"+str(provider)+". "+str(len(output))+" features found."+"Took "+time_string(start,end)+"sec (_get_features)")
+            # print("Features acquired from provider #"+str(provider)+". "+str(len(output))+" features found."+"Took "+time_string(start,end)+"sec (_get_features)")
         except Queue.Empty:
             pass
         except Queue.Full:
             pass
         features_queue.put(output)
-        print("Size of features queue after put: "+str(features_queue.qsize())+" (_get_features())")
+        # print("Size of features queue after put: "+str(features_queue.qsize())+" (_get_features())")
         
           
 class ImageProviderManager(object):
@@ -480,11 +438,11 @@ class ImageProvider(object):
             p_end = datetime.now()
             p_start = self.processing_start[-2]
             
-            print("Time between start of processing and call to get: "+time_string(p_start,p_end))
+            # print("Time between start of processing and call to get: "+time_string(p_start,p_end))
             
-            features = self.features_queue.get(True)
+            features = self.features_queue.get(False)
             end = datetime.now()
-            print("Time to get feature from queue for provider #"+str(self.provider_index)+": "+time_string(start,end)+" Features length: "+str(len(features))+" (ImageProvider.get_features)")                
+            # print("Time to get feature from queue for provider #"+str(self.provider_index)+": "+time_string(start,end)+" Features length: "+str(len(features))+" (ImageProvider.get_features)")                
             
             if features is not None:
                 self.features = features
@@ -495,7 +453,6 @@ class ImageProvider(object):
     def end(self):
         '''This safely ends the previously-started process.'''
         #self.worker.join()
-        print("terminating process")
         self.images_queue.close()
         self.features_queue.close()
         self.worker.terminate()

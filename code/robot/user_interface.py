@@ -146,10 +146,10 @@ class ControlPanel(object):
                 self.get_start = datetime.now()
                 
                 features = self.images.get_features()
-                print("Time between successive calls to providermanager.get_features: "+sensor_analysis.time_string(self.get_end, self.get_start))                
+                # print("Time between successive calls to providermanager.get_features: "+sensor_analysis.time_string(self.get_end, self.get_start))                
                 self.get_end = datetime.now()
-                print("Time to run providermanager.get_features: "+sensor_analysis.time_string(self.get_start, self.get_end))                
-                print("------------------------\n")
+                # print("Time to run providermanager.get_features: "+sensor_analysis.time_string(self.get_start, self.get_end))                
+                # print("------------------------\n")
 
                 
                 #print("UserInterface.mainloop: features acquired")
