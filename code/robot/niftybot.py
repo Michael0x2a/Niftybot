@@ -127,6 +127,7 @@ def main():
     It also contains last-ditch error handling. If the code throws an 
     exception, it will be caught and logged here.
     '''
+
     try:
         user_interface.main()
     except SystemExit:

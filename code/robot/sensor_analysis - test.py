@@ -68,57 +68,8 @@ from __future__ import division
 
 import multiprocessing
 import Queue
-import datetime
-import time
-from datetime import datetime
+
 import SimpleCV as scv
-'''
-from datetime import datetime
-import time
-
-def image_process(image, quality, target_feature):
-
-    features = image.scale(quality).findHaarFeatures(target_feature + ".xml")
-    if features is None:
-        return []
-    else:
-        output = []
-        for feature in features:
-            scale = round(1 / quality)
-            x, y = feature.topLeftCorner()
-            output.append({
-                'height': feature.height() * scale,
-                'width': feature.width() * scale,
-                'top_left_x': x * scale,
-                'top_right_x': y * scale,
-                'center_x': feature.x * scale,
-                'center_y': feature.y * scale,
-                'full_feature': feature
-            })
-        return output
-
-
-def loop():
-    cam = scv.Camera()
-    while True:
-        start = datetime.now()
-        img = cam.getImage()
-        end = datetime.now()
-        delta = end-start
-        print("cam capture time "+time_string(delta))delta
-        
-        processing_start = datetime.now()
-        image_process(img, 0.5, "face")
-        processing_end = datetime.now()
-        processing_delta = processing_end-processing_start
-        print("processing time" + str(processing_delta.seconds+processing_delta.microseconds/1000000.0))
-        time.sleep(0.5)
-loop()
-'''        
-
-def time_string(start, end):
-    delta = end-start
-    return str(delta.seconds + delta.microseconds/1000000.0)
 
 def get_human_locations(image, quality = 0.25, target_feature="upper_body"):
     '''
@@ -227,7 +178,7 @@ def get_human_locations(image, quality = 0.25, target_feature="upper_body"):
             })
         return output
         
-def _get_features(features_queue, images_queue, size, quality, target_feature, provider=1):
+def _get_features(features_queue, images_queue, size, quality, target_feature):
     '''
     This is part of the multi-threaded version of the algorithm described in 
     `find_human_features`.
@@ -252,11 +203,11 @@ def _get_features(features_queue, images_queue, size, quality, target_feature, p
     See `ImageProvider` for more information.
     '''
     while True:
-        output = []
+        output = None
         try:
             # Get the image, but give up if it takes longer then 2 seconds to get.
             raw = images_queue.get(timeout = 2)
-            print("Size of image queue after get: "+str(images_queue.qsize())+" (_get_features())")
+            
             # Convert the raw image string into a SimpleCV image object.
             bmp = scv.cv.CreateImageHeader(size, scv.cv.IPL_DEPTH_8U, 3)
             scv.cv.SetData(bmp, raw)
@@ -264,10 +215,9 @@ def _get_features(features_queue, images_queue, size, quality, target_feature, p
             img = scv.Image(bmp)
             
             # Use Haar features as usual.
-            
-            start = datetime.now()
             features = img.scale(quality).findHaarFeatures(target_feature + '.xml')
             if features is not None:
+                output = []
                 scale = round(1 / quality)
                 for feature in features:
                     x, y = feature.topLeftCorner()
@@ -281,29 +231,21 @@ def _get_features(features_queue, images_queue, size, quality, target_feature, p
                         'full_feature': feature
                     })
             # If any of the Queues to receive data is empty or full, ignore.
-            
-            end = datetime.now()
-            
-            print("Features acquired from provider #"+str(provider)+". "+str(len(output))+" features found."+"Took "+time_string(start,end)+"sec (_get_features)")
         except Queue.Empty:
             pass
         except Queue.Full:
             pass
         features_queue.put(output)
-        print("Size of features queue after put: "+str(features_queue.qsize())+" (_get_features())")
         
           
 class ImageProviderManager(object):
-    def __init__(self, cam, num_of_providers=2):
-        self.cam = cam
+    def __init__(self, cam, num_of_providers=2):#=[basic_hardware.Camera(basic_hardware.FakeArduino()
         self.providers = []
         self.provider_index = 0  
         self.runtimes = []
-        self.updating = True
-        self.add_process = True
             
         for i in range(num_of_providers):
-            self.providers.append(ImageProvider(cam, len(self.providers)))   
+            self.providers.append(ImageProvider(cam))   
                 
 
             
@@ -312,38 +254,30 @@ class ImageProviderManager(object):
             provider.start(feature)
         self.target_feature = feature        
         start = datetime.now()
-        self.providers[self.provider_index].get_features()
+        self.get_features()
         end = datetime.now()
         delta = end-start            
             
         self.avg_runtime = delta.seconds+delta.microseconds/1000000.0                
         self.run_instances = 1
-        print("ImageProviderManage.start(): provider manager started")
         
-    def add_provider(self):
-        new_provider = ImageProvider(self.cam, len(self.providers))
-        self.providers.append(new_provider)
-        # print("ImageProviderManager.add_provider: provider created")       
+    def add_provider(self, feature=self.target_feature):
+        self.providers.append(ImageProvider(cam))
         self.providers[-1].start(self.target_feature)
-        
-    def change_target_feature(self, feature):
+    
+    def change_feature(self, feature):
         self.target_feature = feature
     
     def remove_provider(self, index=-1):
-        if len(self.providers) != 1:
-            self.providers[index].end()
-            self.providers.pop(index)
+        self.providers[index].end()
+        self.providers.pop(index)
         
     def get_features(self):
-
         start = datetime.now()
         
-        self.provider_index %= len(self.providers)
-        
-        self.loopstart = datetime.now()
         features = self.providers[self.provider_index].get_features()
-        # print("ImageProviderManager: features acquired FROM PROVIDER: "+str(self.provider_index))
         self.provider_index += 1
+        self.provider_index %= len(self.providers)
         
         end = datetime.now()
         
@@ -354,86 +288,34 @@ class ImageProviderManager(object):
         self.avg_runtime = (timespan+self.avg_runtime*(self.run_instances))/(self.run_instances+1)
         
         self.run_instances+=1
-        
-        #if self.updating:
-        self.update(10)
-         
+        self.update(0.1)
         return features
             
-    def toggle_update_method(self):
-        if self.add_process:
-            self.add_process = False
-        else:
-            self.add_process = True
             
-    def update(self, period):        
-       
+            
+    def update(self, limit):
         recent_runtimes = 0
         try:
-            for i in range(period):
-                recent_runtimes += self.runtimes[i]/float(period)
-                
-            #if there are <period> values in runtimes and setting recent_runtimes was successful, reset runtimes    
-            self.runtimes = []
-            
-            #reset the number of run instances for computing averages
-            self.run_instances = 0
-            
-            
-            try:
-                delta = recent_runtimes - self.old_avg_runtime
-                
-                #if image processing got faster
-                if delta < 0:
-                    print("####getting faster####")
-                    if self.add_process:
-                        self.add_provider()
-                        print("------ImageProviderManager: adding provider. NUMBER OF PROVIDERS: "+str(len(self.providers))+"-----")   
-                            
-                    else:
-                        self.remove_provider()
-                        print("-----ImageProviderManager: removing provider. NUMBER OF PROVIDERS: "+str(len(self.providers))+"-----")                                            
-             
-                #if image processing got slower, reverse the direction of update change    
-                else:
-                    print("####getting slower####")                
-                    if self.add_process:
-                        self.remove_provider()
-                        self.toggle_update_method()
-                        print("-----ImageProviderManager: removing provider. NEW NUMBER OF PROVIDERS: "+str(len(self.providers))+"-----")                                                                            
-                            
-                    else:
-                        self.add_provider()
-                        self.toggle_update_method()
-                        print("------ImageProviderManager: adding provider. NEW NUMBER OF PROVIDERS: "+str(len(self.providers))+"-----")   
-                                                          
-                print("----ImageProviderManager: average runtime = "+str(recent_runtimes)+"\n")
-            #if self.old_avg runtime is undefined, do nothing
-            except AttributeError: 
-                pass
-                              
-            
-            #save the old average runtime before starting to compute a new one
-            self.old_avg_runtime = self.avg_runtime             
-            
+            for(i in range(10)):
+                recent_runtimes += self.runtimes[-i]
         except IndexError:
-            pass 
+            pass
+        if (recent_runtimes-self.avg_runtimes)/self.avg_runtimes > limit:
+            self.add_provider()
+            print("adding provider. # of providers: "+str(len(self.providers)))+"\n")
+        print("average runtime: "+str(self.avg_runtime))    
             
-    def end(self):
-        for provider in self.providers:
-            provider.end()
-            
-            
+    
+    
+          
 class ImageProvider(object):
     '''
     This class provides a friendly way to process features in a separate process
     and return results.
     '''
-    def __init__(self, cam, provider_index):
+    def __init__(self, cam):
         self.cam = cam
         self.features = []
-        self.provider_index = provider_index
-        self.processing_start = [datetime.now()]
         
     def start(self, feature):
         '''
@@ -450,7 +332,6 @@ class ImageProvider(object):
         Whatever you put in a Queue can be retrieved from the same Queue in an 
         arbitrary number of objects.
         '''
-        
         img = self.cam.getImage().flipHorizontal()
         size = img.size()
 
@@ -460,7 +341,7 @@ class ImageProvider(object):
         self.images_queue.put(img.toString())
         
         self.worker = multiprocessing.Process(target=_get_features, args=(
-            self.features_queue, self.images_queue, size, 1.0, feature, self.provider_index))
+            self.features_queue, self.images_queue, size, 0.5, feature))
         self.worker.start()
         
     def get_features(self):
@@ -471,35 +352,19 @@ class ImageProvider(object):
         the worker to start processing a new frame.'''
         img = self.cam.getImage().flipHorizontal()
         
-        self.processing_start.append(datetime.now())
-        self.images_queue.put(img.toString())
-        
         try:
-            start = datetime.now()
-            
-            p_end = datetime.now()
-            p_start = self.processing_start[-2]
-            
-            print("Time between start of processing and call to get: "+time_string(p_start,p_end))
-            
-            features = self.features_queue.get(True)
-            end = datetime.now()
-            print("Time to get feature from queue for provider #"+str(self.provider_index)+": "+time_string(start,end)+" Features length: "+str(len(features))+" (ImageProvider.get_features)")                
-            
+            features = self.features_queue.get(False)
+            self.images_queue.put(img.toString())
             if features is not None:
                 self.features = features
         except Queue.Empty:
-            print("Features queue was empty (ImageProvider.get_features)")
+            pass
+        print("imageprovider.get_features executed")
         return self.features
         
     def end(self):
         '''This safely ends the previously-started process.'''
-        #self.worker.join()
-        print("terminating process")
-        self.images_queue.close()
-        self.features_queue.close()
-        self.worker.terminate()
-        
+        self.worker.join()
         
 def get_centroid(features):
     '''Calculates a sequence of features, and finds the average x and y centerpoints

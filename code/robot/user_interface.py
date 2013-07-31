@@ -47,6 +47,7 @@ import decision_making
 
 import SimpleCV as cv
 import pygame
+from datetime import datetime
 
 
 def inspect(thing, layers=1, prettyprint = False):
@@ -119,7 +120,7 @@ class ControlPanel(object):
         self.state = state
         
         self.to_inspect = [(self.robot, 2), (self.state, 2)]
-        self.images = sensor_analysis.ImageProvider(robot.camera.cam)
+        self.images = sensor_analysis.ImageProviderManager(robot.camera.cam, 10)
         
         # Currently detects the face. See the source code of 
         # `sensor_analysis.find_human_features` for a full list of possible
@@ -132,18 +133,40 @@ class ControlPanel(object):
         
         It first updates the state machine, then updates the graphics.
         '''
+        self.get_feature_start = [datetime.now()]
+        self.get_end = datetime.now()
+        
         try:
             while True:
+                
                 image = self.robot.camera.get_image()
                 image = image.flipHorizontal()
+                #print("UserInterface.mainloop: image acquired")
+                
+                self.get_start = datetime.now()
                 
                 features = self.images.get_features()
+                print("Time between successive calls to providermanager.get_features: "+sensor_analysis.time_string(self.get_end, self.get_start))                
+                self.get_end = datetime.now()
+                print("Time to run providermanager.get_features: "+sensor_analysis.time_string(self.get_start, self.get_end))                
+                print("------------------------\n")
+
+                
+                #print("UserInterface.mainloop: features acquired")
+                
+                start = datetime.now()
                 
                 self.state.loop(features)
-                
+                #print("UserInterface.mainloop: features passed to state loop")
                 self.draw_camera_feed(image)
                 self.draw_features(features)
                 self.draw_inspected(660, 20)
+                #print("UserInterface.mainloop: features drawn")
+                
+                end = datetime.now()
+                
+                
+                #print("Non feature-acquisition took "+sensor_analysis.time_string(start, end)+"(user_interface.mainloop()")
                 
                 
                 self.process_events()
@@ -178,7 +201,7 @@ class ControlPanel(object):
             5)
             
     def draw_inspected(self, x, y):
-        '''Draw a clean version of the list of features on the pygmae surface.
+        '''Draw a clean version of the list of features on the pygame surface.
         
         Each object to be inspected gets their own column.'''
         def vert(text, x, y):

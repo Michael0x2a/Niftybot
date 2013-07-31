@@ -89,7 +89,9 @@ class Motor(object):
     '''
     def __init__(self, arduino, pin):
         self.arduino = arduino
+        self.arduino.pinMode(pin, "OUTPUT")
         self.pin = pin
+        # assert(pin in [3, 5, 6, 9, 10, 11]) - these are pins capable of PWM output
         self.speed = 0
     
     def set_speed(self, speed):
@@ -102,6 +104,7 @@ class Motor(object):
         '''
         assert(-1 <= speed <= 1)
         self.speed = speed
+        self.arduino.analogWrite(self.pin, speed*255)
         
 class Servo(object):
     '''
@@ -114,11 +117,14 @@ class Servo(object):
     '''
     def __init__(self, arduino, pin):
         self.arduino = arduino
+        self.arduino.pinMode(pin, "OUTPUT")
         self.pin = pin
         self.position = 0
         
     def set_position(self, position):
+
         self.position = position
+        
         
 class Encoder(object):
     '''
@@ -186,6 +192,9 @@ class FakeArduino(object):
         
     def digitalWrite(self, pin, state):
         self.pins[pin] = state
+        
+    def analogWrite(self, pin, value):
+        self.pins[pin] = value
         
 def test():
     '''
