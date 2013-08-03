@@ -210,7 +210,7 @@ def _get_features(features_queue, images_queue, message_queue, size, quality, ta
             if message == "terminate":
                 return
         except Queue.Empty:
-            continue
+            pass
         
         try:
             # Get the image, but give up if it takes longer then 2 seconds to get.

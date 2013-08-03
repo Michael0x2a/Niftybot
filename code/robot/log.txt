@@ -1,0 +1,44 @@
+Metadata:
+    Timestamp: 2013-08-02 18:27:21.269000
+    Version:   1.0.0
+
+BEGIN MESSAGE:
+
+Top-level exception: Traceback (most recent call last):
+  File "niftybot.py", line 134, in main
+    user_interface.main()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\robot\user_interface.py", line 257, in main
+    control = ControlPanel(robot, states)
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\robot\user_interface.py", line 134, in __init__
+    self.images.start('face')
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\robot\sensor_analysis.py", line 274, in start
+    img = self.cam.getImage().flipHorizontal()
+  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
+    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
+error: Array should be CvMat or IplImage
+
+END MESSAGE
+
+~~~~~~~~~~~~~~~~~~~~~~
+Metadata:
+    Timestamp: 2013-08-02 18:31:35.640000
+    Version:   1.0.0
+
+BEGIN MESSAGE:
+
+Top-level exception: Traceback (most recent call last):
+  File "niftybot.py", line 134, in main
+    user_interface.main()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\robot\user_interface.py", line 258, in main
+    control = ControlPanel(robot, states)
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\robot\user_interface.py", line 134, in __init__
+    self.images.start('face')
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\robot\sensor_analysis.py", line 274, in start
+    img = self.cam.getImage().flipHorizontal()
+  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
+    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
+error: Array should be CvMat or IplImage
+
+END MESSAGE
+
+~~~~~~~~~~~~~~~~~~~~~~

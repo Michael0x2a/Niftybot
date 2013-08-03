@@ -38,6 +38,8 @@ state or move on to the next one)
 After reading this file, move on to `user_interface.py
 '''
 
+import math
+
 import sensor_analysis
 import robot_actions
 
@@ -76,11 +78,11 @@ class ApproachState(object):
             return 'waiting'
         self.x_offset = centroid[0]
         if self.x_offset < 300:
-            self.robot.set_left_speed(0.5)
-            self.message = "Rotate left"
-        elif self.x_offset > 340:
             self.robot.set_right_speed(0.5)
             self.message = "Rotate right"
+        elif self.x_offset > 340:
+            self.robot.set_left_speed(0.5)
+            self.message = "Rotate left"
         else:
             self.robot.set_forward_speed(0.5)
             self.message = "Go forward"
@@ -98,12 +100,28 @@ class ManualControlState(object):
     def startup(self):
         self.robot.set_speed(0, 0)
         
-    def loop(self, data):
-        straight_delta = data.get('straight', 0)
-        rotate_delta = data.get('rotate', 0)
+    def loop(self, data, max_speed=1):
+        straight = data.get('straight', 0)
+        rotate = data.get('rotate', 0)
         
-        self.robot.set_forward_speed(straight_delta)
-        self.robot.set_right_speed(rotate_delta)
+        left_wheel = 0
+        right_wheel = 0
+        
+        left_wheel = right_wheel = straight
+        
+        left_wheel = left_wheel + rotate
+        right_wheel = right_wheel - rotate
+        
+        def clamp(speed, top):
+            if abs(speed) > top:
+                return top * (-1 if speed < 0 else 1)
+            else:
+                return speed
+                
+        left_wheel = clamp(left_wheel, max_speed)
+        right_wheel = clamp(right_wheel, max_speed)
+        
+        self.robot.set_speed(left_wheel, right_wheel)
         
     def end(self):
         self.robot.set_speed(0, 0)
@@ -128,21 +146,24 @@ class StateMachine(object):
         
     def loop(self, data):
         next = self.state.loop(data)
-        self.intercept_manual_control(self, data)
+        next = self.intercept_manual_control(data, next)
         if next is not None and next in self.states:
             self.state.end()
             self.state = self.states[next]
             self.state.startup()
             self.state_name = next
             
-    def intercept_manual_control(self, data):
+    def intercept_manual_control(self, data, next):
         is_manual = data.get('manual', False)
-        if is_manual and self.state != 'manual':
+        if is_manual and self.state_name != 'manual':
             self.suspended = self.state_name
-            self.state_name = 'manual'
-        if not is_manual and self.state == 'manual':
-            self.state_name = self.suspended
+            return 'manual'
+        if not is_manual and self.state_name == 'manual':
+            out = self.suspended
             self.suspended = None
+            return out
+        return next
+        
             
 def startup(robot):
     '''This is a convenience method to create a new `StateMachine` object.'''

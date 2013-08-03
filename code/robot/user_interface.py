@@ -123,11 +123,13 @@ class ControlPanel(object):
         self.robot = robot
         self.state = state
         
-        self.to_inspect = [(self.robot, 2), (self.state, 3)]
-        self.inspect_exclude = (Arduino.Arduino, basic_hardware.FakeArduino, cv.Camera)
-        self.images = sensor_analysis.ImageProvider(robot.camera.cam)
-        self.manual_control = False
+        self.to_inspect = [
+            (self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, cv.Camera)), 
+            (self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, cv.Camera, robot_actions.Robot))]
         
+        self.images = sensor_analysis.ImageProvider(robot.camera.cam)
+        self.is_manual = False
+            
         # Currently detects the face. See the source code of 
         # `sensor_analysis.find_human_features` for a full list of possible
         # features.
@@ -140,7 +142,7 @@ class ControlPanel(object):
         It first updates the state machine, then updates the graphics.
         '''
         features = []
-        try:
+        try:    
             while True:
                 # I/O
                 self.process_events()
@@ -156,11 +158,12 @@ class ControlPanel(object):
                 # Handling decisions
                 data = {
                     'humans': features,
-                    #'straight': straight,
-                    #'rotate': rotate,
+                    'straight': straight,
+                    'rotate': rotate,
+                    'manual': self.is_manual,
                 }
                 
-                #self.state.loop(data)
+                self.state.loop(data)
                 
                 # Display
                 self.draw_camera_feed(image)
@@ -170,6 +173,7 @@ class ControlPanel(object):
                 # Bookkeeping
                 self.heartbeat()
         finally:
+            pygame.quit()
             self.images.end()
     
     def draw_camera_feed(self, image):
@@ -219,18 +223,18 @@ class ControlPanel(object):
             return offset
             
                     
-        for index, (obj, depth) in enumerate(self.to_inspect):
-            obj = inspect(obj, depth, exclude=self.inspect_exclude)
+        for index, (obj, depth, exclude) in enumerate(self.to_inspect):
+            obj = inspect(obj, depth, exclude=exclude)
             vert(obj, x + index * 200, y)
         
     def get_manual_control(self, scale=0.5):
-        def get_key(key):
+        def get_speed(key):
             return 1 if pygame.key.get_pressed()[key] else 0
     
-        forward = get_key(pygame.K_UP)
-        back = get_key(pygame.K_DOWN)
-        left = get_key(pygame.K_LEFT)
-        right = get_key(pygame.K_RIGHT)
+        forward = get_speed(pygame.K_UP)
+        back = get_speed(pygame.K_DOWN)
+        left = get_speed(pygame.K_LEFT)
+        right = get_speed(pygame.K_RIGHT)
         
         straight = (forward - back) * scale
         rotate = (right - left) * scale
@@ -242,9 +246,10 @@ class ControlPanel(object):
         user data input.'''
         event = pygame.event.poll()
         if event.type == pygame.QUIT:
-            pygame.quit()
-            self.images.end()
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_m:
+                self.is_manual = not self.is_manual
             
     def heartbeat(self):
         '''Contains the bare minimum to keep the program alive.'''
