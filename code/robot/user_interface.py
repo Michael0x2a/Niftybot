@@ -120,7 +120,7 @@ class ControlPanel(object):
         self.state = state
         
         self.to_inspect = [(self.robot, 2), (self.state, 2)]
-        self.images = sensor_analysis.ImageProviderManager(robot.camera.cam, 10)
+        self.images = sensor_analysis.ImageProviderManager(robot.camera.cam, 5)
         
         # Currently detects the face. See the source code of 
         # `sensor_analysis.find_human_features` for a full list of possible

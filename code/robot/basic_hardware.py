@@ -87,12 +87,31 @@ class Motor(object):
     '''
     Creates a single motor, and sets the speed.
     '''
-    def __init__(self, arduino, pin):
+    def __init__(self, arduino, index):
         self.arduino = arduino
-        self.arduino.pinMode(pin, "OUTPUT")
-        self.pin = pin
-        # assert(pin in [3, 5, 6, 9, 10, 11]) - these are pins capable of PWM output
         self.speed = 0
+        self.index = index        
+        
+        assert(self.index in [1, 2])
+        if self.index == 1:
+            self.pins = {"PWM": 3, "direction": 12}
+        
+            # PWM control for motor outputs 1 and 2
+            self.arduino.pinMode(3, "OUTPUT")
+            
+            # Directional control for motor outputs 1 and 2
+            self.arduino.pinMode(12, "OUTPUT")
+            
+        else:
+            self.pins = {"PWM": 11, "direction": 13}
+            
+            # PWM control for motor outputs 3 and 4
+            self.arduino.pinMode(11, "OUTPUT")
+            
+            # Directional control for motor outputs 3 and 4
+            self.arduino.pinMode(13, "OUTPUT")
+        
+
     
     def set_speed(self, speed):
         '''
@@ -102,9 +121,20 @@ class Motor(object):
         
         The speed must be within -1 and 1 (for now).
         '''
+        self.speed = speed        
+        
+        PWM = self.pins["PWM"]
+        dir = self.pins["direction"]
+        
         assert(-1 <= speed <= 1)
-        self.speed = speed
-        self.arduino.analogWrite(self.pin, speed*255)
+        
+        if self.speed >= 0:
+            self.arduino.digitalWrite(dir, "HIGH")
+        else:
+            self.arduino.digitalWrite(dir, "LOW")
+            
+        self.arduino.analogWrite(PWM, speed*255)
+        
         
 class Servo(object):
     '''
@@ -121,9 +151,11 @@ class Servo(object):
         self.pin = pin
         self.position = 0
         
+        self.arduino.Servos.attach(self.pin)
+        
     def set_position(self, position):
-
         self.position = position
+        self.arduino.Servos.write(self.pin, position)
         
         
 class Encoder(object):
@@ -207,6 +239,13 @@ def test():
         diagnostic_light.toggle()
         time.sleep(1)
         
+def test_motor():
+    board = Arduino.Arduino("9600")
+    
+    motor = Motor(board, 1)
+    # motor = Motor(board, 2)
+    motor.set_speed(0.5)
+        
 if __name__ == '__main__':
-    test()
+    test_motor()
     

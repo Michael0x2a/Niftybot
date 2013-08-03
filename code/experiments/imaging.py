@@ -141,6 +141,6 @@ def normal_image():
         worker.join()
         
 if __name__ == '__main__':
-    normal_image()
-    #simple_tracking()
+    #normal_image()
+    simple_tracking()
 
