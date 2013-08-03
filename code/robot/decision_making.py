@@ -51,11 +51,10 @@ class WaitingState(object):
     def startup(self):
         pass
         
-    def loop(self, humans):
-        if len(humans) > 0:
+    def loop(self, data):
+        if len(data.get('humans', [])) > 0:
             return "approach"
-        return None
-        
+        return None
     def end(self):
         pass
         
@@ -70,7 +69,8 @@ class ApproachState(object):
     def startup(self):
         pass
         
-    def loop(self, humans):
+    def loop(self, data):
+        humans = data.get('humans', [])
         centroid = sensor_analysis.get_centroid(humans)
         if len(humans) == 0:
             return 'waiting'
@@ -89,6 +89,28 @@ class ApproachState(object):
     def end(self):
         pass
         
+class ManualControlState(object):
+    def __init__(self, robot):
+        self.name = 'manual'
+        self.message = 'Manually controlling robot.'
+        self.robot = robot
+        
+    def startup(self):
+        self.robot.set_speed(0, 0)
+        
+    def loop(self, data):
+        straight_delta = data.get('straight', 0)
+        rotate_delta = data.get('rotate', 0)
+        
+        self.robot.set_forward_speed(straight_delta)
+        self.robot.set_right_speed(rotate_delta)
+        
+    def end(self):
+        self.robot.set_speed(0, 0)
+        
+        
+        
+        
         
 class StateMachine(object):
     '''
@@ -98,22 +120,36 @@ class StateMachine(object):
     def __init__(self, robot, start_state, states):
         self.robot = robot
         self.state = states[start_state]
+        self.state_name = start_state
         self.states = states
+        self.suspended = None
         
         self.state.startup()
         
-    def loop(self, input):
-        next = self.state.loop(input)
+    def loop(self, data):
+        next = self.state.loop(data)
+        self.intercept_manual_control(self, data)
         if next is not None and next in self.states:
             self.state.end()
             self.state = self.states[next]
             self.state.startup()
+            self.state_name = next
+            
+    def intercept_manual_control(self, data):
+        is_manual = data.get('manual', False)
+        if is_manual and self.state != 'manual':
+            self.suspended = self.state_name
+            self.state_name = 'manual'
+        if not is_manual and self.state == 'manual':
+            self.state_name = self.suspended
+            self.suspended = None
             
 def startup(robot):
     '''This is a convenience method to create a new `StateMachine` object.'''
     states = {
         'waiting': WaitingState(robot),
-        'approach': ApproachState(robot)
+        'approach': ApproachState(robot),
+        'manual': ManualControlState(robot),
     }
     return StateMachine(robot, 'waiting', states)
             

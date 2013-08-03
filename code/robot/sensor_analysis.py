@@ -178,7 +178,7 @@ def get_human_locations(image, quality = 0.25, target_feature="upper_body"):
             })
         return output
         
-def _get_features(features_queue, images_queue, size, quality, target_feature):
+def _get_features(features_queue, images_queue, message_queue, size, quality, target_feature):
     '''
     This is part of the multi-threaded version of the algorithm described in 
     `find_human_features`.
@@ -204,6 +204,14 @@ def _get_features(features_queue, images_queue, size, quality, target_feature):
     '''
     while True:
         output = None
+        try:
+            # bookkeeping
+            message = message_queue.get(False)
+            if message == "terminate":
+                return
+        except Queue.Empty:
+            continue
+        
         try:
             # Get the image, but give up if it takes longer then 2 seconds to get.
             raw = images_queue.get(timeout = 2)
@@ -271,8 +279,10 @@ class ImageProvider(object):
         self.images_queue = multiprocessing.Queue()
         self.images_queue.put(img.toString())
         
+        self.message_queue = multiprocessing.Queue()
+        
         self.worker = multiprocessing.Process(target=_get_features, args=(
-            self.features_queue, self.images_queue, size, 0.5, feature))
+            self.features_queue, self.images_queue, self.message_queue, size, 0.5, feature))
         self.worker.start()
         
     def get_features(self):
@@ -295,7 +305,9 @@ class ImageProvider(object):
         
     def end(self):
         '''This safely ends the previously-started process.'''
+        self.message_queue.put('terminate', False)
         self.worker.join()
+        self.worker.terminate()
         
 def get_centroid(features):
     '''Calculates a sequence of features, and finds the average x and y centerpoints

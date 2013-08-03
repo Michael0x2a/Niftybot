@@ -45,11 +45,12 @@ import sensor_analysis
 import robot_actions
 import decision_making
 
+import Arduino
 import SimpleCV as cv
 import pygame
 
 
-def inspect(thing, layers=1, prettyprint = False):
+def inspect(thing, layers=1, prettyprint = False, exclude=[]):
     '''
     This function performs a bit of meta-programming to inspect 
     any arbitrary python object, and returns a dictionary mapping all of the 
@@ -61,15 +62,15 @@ def inspect(thing, layers=1, prettyprint = False):
         The object to inspect.
     -   layers:  
         How deep to analyze the object. If layers equals 1, it only returns
-        a dict of attribtes of `thing`. If layers equals 2, it inspects any
+        a dict of attributes of `thing`. If layers equals 2, it inspects any
         objects contained within the `thing` object.
     -   prettyprint:  
         Defaults to false. If set to true, the output would be a neatly
-        formated JSON string.
+        formatted JSON string.
         
     Returns:
     
-    -   A dictionary mapping all the attributes inside an arbitary object
+    -   A dictionary mapping all the attributes inside an arbitrary object
         to their values.
         
     How it works:
@@ -84,24 +85,28 @@ def inspect(thing, layers=1, prettyprint = False):
     '''
     if type(thing) == dict:
         return thing
-    output = copy.deepcopy(thing.__dict__)
-    
+        
+    try:
+        output = copy.deepcopy(thing.__dict__)
+    except AttributeError:
+        return thing
+        
     if layers > 1:
         for attr, value in thing.__dict__.items():
-            if isinstance(object, (type, types.ClassType)):
-                output[attr] = inspect(value, layers - 1)
-                
+            if not isinstance(value, exclude):
+                output[attr] = inspect(value, layers - 1, prettyprint, exclude=exclude)
+    
+    output = {attr: "(HIDDEN)" if isinstance(value, exclude) else value for (attr, value) in output.items()}
+    
     if prettyprint:
-        return json.dumps(output, indent=4, default=lambda x: '')
+        return json.dumps(output, indent=4)
     else:
         # This is a very clumsy way of filtering out objects that don't
         # have a sensible string representation.
         # Doing str(obj) for an arbitrary object returns something like:
         #
         #   `<robot_actions.Robot instance at 0x0287B498>`
-        return json.loads(json.dumps(
-            output, 
-            default = lambda x: str(x) if 'instance at' not in str(x) else '<obj>'))
+        return output
         
     
 class ControlPanel(object):
@@ -118,8 +123,10 @@ class ControlPanel(object):
         self.robot = robot
         self.state = state
         
-        self.to_inspect = [(self.robot, 2), (self.state, 2)]
+        self.to_inspect = [(self.robot, 2), (self.state, 3)]
+        self.inspect_exclude = (Arduino.Arduino, basic_hardware.FakeArduino, cv.Camera)
         self.images = sensor_analysis.ImageProvider(robot.camera.cam)
+        self.manual_control = False
         
         # Currently detects the face. See the source code of 
         # `sensor_analysis.find_human_features` for a full list of possible
@@ -132,25 +139,39 @@ class ControlPanel(object):
         
         It first updates the state machine, then updates the graphics.
         '''
+        features = []
         try:
             while True:
+                # I/O
+                self.process_events()
+                
                 image = self.robot.camera.get_image()
                 image = image.flipHorizontal()
                 
+                straight, rotate = self.get_manual_control()
+                
+                # Processing
                 features = self.images.get_features()
                 
-                self.state.loop(features)
+                # Handling decisions
+                data = {
+                    'humans': features,
+                    #'straight': straight,
+                    #'rotate': rotate,
+                }
                 
+                #self.state.loop(data)
+                
+                # Display
                 self.draw_camera_feed(image)
                 self.draw_features(features)
                 self.draw_inspected(660, 20)
                 
-                
-                self.process_events()
+                # Bookkeeping
                 self.heartbeat()
         finally:
             self.images.end()
-            
+    
     def draw_camera_feed(self, image):
         '''Draws the camera image to the pygame surface.'''
         surface = image.getPGSurface()
@@ -199,12 +220,25 @@ class ControlPanel(object):
             
                     
         for index, (obj, depth) in enumerate(self.to_inspect):
-            obj = inspect(obj, depth)
+            obj = inspect(obj, depth, exclude=self.inspect_exclude)
             vert(obj, x + index * 200, y)
-            
-            
+        
+    def get_manual_control(self, scale=0.5):
+        def get_key(key):
+            return 1 if pygame.key.get_pressed()[key] else 0
+    
+        forward = get_key(pygame.K_UP)
+        back = get_key(pygame.K_DOWN)
+        left = get_key(pygame.K_LEFT)
+        right = get_key(pygame.K_RIGHT)
+        
+        straight = (forward - back) * scale
+        rotate = (right - left) * scale
+        
+        return (straight, rotate)
+    
     def process_events(self):
-        '''Keeps the user interface GUI from going hairwire, and responds to
+        '''Keeps the user interface GUI from going haywire, and responds to
         user data input.'''
         event = pygame.event.poll()
         if event.type == pygame.QUIT:

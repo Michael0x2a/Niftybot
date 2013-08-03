@@ -139,8 +139,9 @@ def normal_image():
             img.save(disp)
     finally:
         worker.join()
+        worker.terminate()
         
 if __name__ == '__main__':
-    normal_image()
-    #simple_tracking()
+    #normal_image()
+    simple_tracking()
 

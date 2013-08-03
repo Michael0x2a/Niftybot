@@ -127,15 +127,18 @@ def main():
     It also contains last-ditch error handling. If the code throws an 
     exception, it will be caught and logged here.
     '''
-    try:
+    if "--noisy" in sys.argv:
         user_interface.main()
-    except SystemExit:
-        pass
-    except Exception:
-        error = traceback.format_exc()
-        errors.log('Top-level exception: ' + error)
-        errors.error('The program encountered an unexpected error.\n\n' + 
-            'Please see "log.txt" for details.')
+    else:
+        try:
+            user_interface.main()
+        except SystemExit:
+            pass
+        except Exception:
+            error = traceback.format_exc()
+            errors.log('Top-level exception: ' + error)
+            errors.error('The program encountered an unexpected error.\n\n' + 
+                'Please see "log.txt" for details.')
     
 # The "if __name__ == '__main__' bit is a common idiom in Python.
 # See [this Stackoverflow answer][mn] for details.
