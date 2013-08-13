@@ -60,7 +60,6 @@ class Robot(object):
         self.diagnostic_light = basic_hardware.LedLight(self.arduino, 13)
         self.left_wheel = basic_hardware.Motor(self.arduino, 14)
         self.right_wheel = basic_hardware.Motor(self.arduino, 15)
-        self.camera = basic_hardware.Camera(self.arduino)
         
     def set_speed(self, left, right):
         self.left_wheel.set_speed(left)

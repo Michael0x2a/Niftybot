@@ -1,0 +1,8 @@
+http://code.google.com/p/pyffmpeg/
+http://code.google.com/p/mjpeg-stream-client/
+http://sourceforge.net/p/mjpg-streamer/code/181/tree/mjpg-streamer/
+
+http://stackoverflow.com/questions/7993624/streaming-audio-and-video-with-python
+http://pygstdocs.berlios.de/#video
+http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
+http://gstreamer.freedesktop.org/documentation/

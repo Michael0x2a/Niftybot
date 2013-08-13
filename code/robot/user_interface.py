@@ -31,7 +31,7 @@ library, and the pygame library to display the UI.
 
 ## Up next ##
 
-After reading this file, move to `errors.py`
+After reading this file, move to `dashboard.py`
 '''
 
 # Libraries included within the Python standard library
@@ -39,14 +39,17 @@ import sys
 import json
 import copy
 import types
+import multiprocessing
 
 import basic_hardware
 import sensor_analysis
 import robot_actions
 import decision_making
+import dashboard
 
 import Arduino
-import SimpleCV as cv
+import SimpleCV as scv
+import cv2
 import pygame
 
 
@@ -114,26 +117,34 @@ class ControlPanel(object):
     This class is the main UI.
     '''
     def __init__(self, robot, state):
+        self.robot = robot
+        self.state = state
+        
+    def setup(self):
         pygame.init()
         self.size = (1200, 480)
         self.screen = pygame.display.set_mode(self.size)
         pygame.display.set_caption("Niftybot")
         self.font = pygame.font.Font(pygame.font.get_default_font(), 12)
         
-        self.robot = robot
-        self.state = state
-        
         self.to_inspect = [
-            (self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, cv.Camera)), 
-            (self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, cv.Camera, robot_actions.Robot))]
+            ('robot', self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera)), 
+            ('state', self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera, robot_actions.Robot))]
         
-        self.images = sensor_analysis.ImageProvider(robot.camera.cam)
+        self.cam = scv.Camera(0)
+        self.images = sensor_analysis.ImageProvider(self.cam)
         self.is_manual = False
             
         # Currently detects the face. See the source code of 
         # `sensor_analysis.find_human_features` for a full list of possible
         # features.
         self.images.start('face')
+        
+        self.mailbox = multiprocessing.Queue()
+        self.data = multiprocessing.Manager().dict()
+        self.dashboard = dashboard.Dashboard('dashboard', self.data, self.mailbox)
+        self.dashboard.start()
+        
         
     def mainloop(self):
         '''
@@ -142,28 +153,35 @@ class ControlPanel(object):
         It first updates the state machine, then updates the graphics.
         '''
         features = []
+        self.setup()
+        
+        self.data['straight'] = 0
+        self.data['rotate'] = 0
+        self.data['manual'] = False
+        
         try:    
             while True:
                 # I/O
                 self.process_events()
                 
-                image = self.robot.camera.get_image()
+                image = self.cam.getImage()
                 image = image.flipHorizontal()
                 
-                straight, rotate = self.get_manual_control()
+                self.try_manual_control()
+                
+                while not self.mailbox.empty():
+                    name, value = self.mailbox.get_nowait()
+                    self.data[name] = value
                 
                 # Processing
                 features = self.images.get_features()
+                self.data['humans'] = features
+                
+                for name, obj in self.get_inspected():
+                    self.data[name] = obj
                 
                 # Handling decisions
-                data = {
-                    'humans': features,
-                    'straight': straight,
-                    'rotate': rotate,
-                    'manual': self.is_manual,
-                }
-                
-                self.state.loop(data)
+                self.state.loop(self.data)
                 
                 # Display
                 self.draw_camera_feed(image)
@@ -172,9 +190,12 @@ class ControlPanel(object):
                 
                 # Bookkeeping
                 self.heartbeat()
+        except:
+            raise
         finally:
             pygame.quit()
             self.images.end()
+            self.dashboard.terminate()
     
     def draw_camera_feed(self, image):
         '''Draws the camera image to the pygame surface.'''
@@ -187,7 +208,7 @@ class ControlPanel(object):
         for feature in features:
             pygame.draw.rect(
                 self.screen, 
-                cv.Color.RED,
+                scv.Color.RED,
                 pygame.Rect(
                     feature['top_left_x'],
                     feature['top_right_x'],
@@ -197,10 +218,14 @@ class ControlPanel(object):
         centroid = sensor_analysis.get_centroid(features)
         pygame.draw.circle(
             self.screen,
-            cv.Color.GREEN,
+            scv.Color.GREEN,
             centroid,
             20,
             5)
+            
+    def get_inspected(self):
+        for (name, obj, depth, exclude) in self.to_inspect:
+            yield (name, inspect(obj, depth, exclude=exclude))
             
     def draw_inspected(self, x, y):
         '''Draw a clean version of the list of features on the pygmae surface.
@@ -222,12 +247,10 @@ class ControlPanel(object):
             offset = len(text) * 16
             return offset
             
-                    
-        for index, (obj, depth, exclude) in enumerate(self.to_inspect):
-            obj = inspect(obj, depth, exclude=exclude)
+        for index, (name, obj) in enumerate(self.get_inspected()):
             vert(obj, x + index * 200, y)
         
-    def get_manual_control(self, scale=0.5):
+    def try_manual_control(self, scale=0.5):
         def get_speed(key):
             return 1 if pygame.key.get_pressed()[key] else 0
     
@@ -239,17 +262,20 @@ class ControlPanel(object):
         straight = (forward - back) * scale
         rotate = (right - left) * scale
         
-        return (straight, rotate)
+        self.data['straight'] = straight
+        self.data['rotate'] = rotate
     
     def process_events(self):
         '''Keeps the user interface GUI from going haywire, and responds to
         user data input.'''
         event = pygame.event.poll()
         if event.type == pygame.QUIT:
+            pygame.quit()
             sys.exit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_m:
                 self.is_manual = not self.is_manual
+                self.data['manual'] = self.is_manual
             
     def heartbeat(self):
         '''Contains the bare minimum to keep the program alive.'''

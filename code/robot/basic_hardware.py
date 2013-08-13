@@ -138,31 +138,6 @@ class Encoder(object):
     def get_distance(self):
         pass
         
-class Camera(object):
-    '''
-    Represents a "camera" image. Currently grabs the image from
-    the webcam, not from the Arduino.
-    '''
-    def __init__(self, arduino):
-        self.arduino = arduino
-        self.cam = scv.Camera(0)
-     
-    def get_image(self):
-        '''
-        Returns a single frame from the camera as a SimpleCV Image
-        object.
-        '''
-        return self.cam.getImage()
-        
-    def enable_camera(self):
-        '''Currently not implemented; the camera is always enabled.'''
-        pass
-        
-    def disable_camera(self):
-        '''Currently not implemented; the camera is always enabled.'''
-        pass
-        
-        
 class FakeArduino(object):
     '''
     Represents a fake Arduino so we can test the code when a real Arduino is

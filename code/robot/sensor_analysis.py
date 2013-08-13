@@ -236,7 +236,7 @@ def _get_features(features_queue, images_queue, message_queue, size, quality, ta
                         'top_right_x': y * scale,
                         'center_x': feature.x * scale,
                         'center_y': feature.y * scale,
-                        'full_feature': feature
+                        #'full_feature': feature
                     })
             # If any of the Queues to receive data is empty or full, ignore.
         except Queue.Empty:
@@ -306,7 +306,6 @@ class ImageProvider(object):
     def end(self):
         '''This safely ends the previously-started process.'''
         self.message_queue.put('terminate', False)
-        self.worker.join()
         self.worker.terminate()
         
 def get_centroid(features):
