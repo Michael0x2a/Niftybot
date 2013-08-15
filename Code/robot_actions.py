@@ -86,26 +86,4 @@ class Robot(object):
         self.set_speed(0, 0)
         return self
         
-    def forward(self, speed=1, callback=(lambda: None), timeout=float('inf')):
-        '''Currently, we can only set the speed of the robot. Ideally, it'd be nice
-        to tell the robot to rotate a precise amount, or move forward a precise amount,
-        using the encoder in some fashion.
-        
-        Ideally, I'd like to avoid using multi-threading here, and instead simply call 
-        a callback once the function is finished executing, or use some other more 
-        sophisticated kind of async control.
-        
-        This method needs to be implemented.
-        
-        Arguments:
-        
-        -   speed:  
-            The speed to move forward at.
-        -   callback: 
-            The function to call once the robot has finished moving forward.
-        =   timeout:
-            The time in seconds to wait before stopping the robot and canceling this
-            function.
-        '''
-        pass
         
