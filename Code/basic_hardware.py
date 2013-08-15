@@ -162,50 +162,6 @@ class Servo(object):
         self.position = position
         self.arduino.Servos.write(self.pin, position)
         
-        
-class Encoder(object):
-    '''
-    Currently not implemented.
-    
-    Returns either how fast or how long some motor or servo has spun.
-    '''
-    def __init__(self, arduino, pin):
-        self.arduino = arduino
-        self.pin = pin
-        self.rate = 0
-        self.distance = 0
-        
-    def get_rate(self):
-        pass
-        
-    def get_distance(self):
-        pass
-        
-class Camera(object):
-    '''
-    Represents a "camera" image. Currently grabs the image from
-    the webcam, not from the Arduino.
-    '''
-    def __init__(self, arduino):
-        self.arduino = arduino
-        self.cam = scv.Camera(0)
-     
-    def get_image(self):
-        '''
-        Returns a single frame from the camera as a SimpleCV Image
-        object.
-        '''
-        return self.cam.getImage()
-        
-    def enable_camera(self):
-        '''Currently not implemented; the camera is always enabled.'''
-        pass
-        
-    def disable_camera(self):
-        '''Currently not implemented; the camera is always enabled.'''
-        pass
-        
-        
 class FakeArduino(object):
     '''
     Represents a fake Arduino so we can test the code when a real Arduino is
@@ -223,6 +179,7 @@ class FakeArduino(object):
         self.args = args
         self.kwargs = kwargs
         self.pins = {}
+        self.Servos = FakeServos()
         
     def pinMode(self, pin, mode):
         self.pins[pin] = mode
@@ -232,6 +189,13 @@ class FakeArduino(object):
         
     def analogWrite(self, pin, value):
         self.pins[pin] = value
+        
+class FakeServos(object):
+    def __init__(self):
+        self.servos = []
+        
+    def attach(self, pin, *args, **kwargs):
+        self.servos.append(pin)
         
 def test(arduino):
     '''

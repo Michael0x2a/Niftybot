@@ -47,7 +47,7 @@ import robot_actions
 import decision_making
 import dashboard
 
-import Arduino
+import arduino_modified as Arduino
 import SimpleCV as scv
 import cv2
 import pygame
@@ -175,8 +175,8 @@ class ControlPanel(object):
                 
                 # Processing
                 features = self.images.get_features()
-                self.data['humans'] = features
                 self.data['centroid'] = sensor_analysis.get_centroid(features)
+                self.data['humans'] = features
                 
                 for name, obj in self.get_inspected():
                     self.data[name] = obj

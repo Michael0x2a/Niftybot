@@ -43,6 +43,7 @@ import basic_hardware
 import sensor_analysis
 
 import arduino_modified as Arduino
+
 class Robot(object):
     def __init__(self, arduino=None, arm_servo=None, laptop_servo=None):
         '''
@@ -59,23 +60,19 @@ class Robot(object):
             
 
         if arm_servo is None:
-            self.arm_servo = basic_hardware.Servo(arduino, 9)
+            self.arm_servo = basic_hardware.Servo(self.arduino, 9)
         else:
             self.arm_servo = arm_servo
             
         
         if laptop_servo is None:
-            self.laptop_servo = basic_hardware.Servo(arduino, 6)
+            self.laptop_servo = basic_hardware.Servo(self.arduino, 6)
         else:
             self.laptop_servo = laptop_servo
         
-       
-            
-            
         self.diagnostic_light = basic_hardware.LedLight(self.arduino, 13)
-        self.left_wheel = basic_hardware.Motor(self.arudino, 1)
+        self.left_wheel = basic_hardware.Motor(self.arduino, 1)
         self.right_wheel = basic_hardware.Motor(self.arduino, 2)
-        self.camera = basic_hardware.Camera(self.arduino)
         
     def set_speed(self, left, right):
         self.left_wheel.set_speed(left)
@@ -102,36 +99,12 @@ class Robot(object):
         self.set_speed(0, 0)
         return self
         
-    def forward(self, speed=1, callback=(lambda: None), timeout=float('inf')):
-        '''Currently, we can only set the speed of the robot. Ideally, it'd be nice
-        to tell the robot to rotate a precise amount, or move forward a precise amount,
-        using the encoder in some fashion.
-        
-        Ideally, I'd like to avoid using multi-threading here, and instead simply call 
-        a callback once the function is finished executing, or use some other more 
-        sophisticated kind of async control.
-        
-        This method needs to be implemented.
-        
-        Arguments:
-        
-        -   speed:  
-            The speed to move forward at.
-        -   callback: 
-            The function to call once the robot has finished moving forward.
-        =   timeout:
-            The time in seconds to wait before stopping the robot and canceling this
-            function.
-        '''
-        pass
-        
     def set_laptop_tilt(self, position):
         self.laptop_servo.set_position(position)
         
     def adjust_laptop_tilt(self, increment):
         position = self.laptop_servo.position
         self.set_laptop_tilt(self, position+increment)
-    
     
     def smart_adjust_tilt(self, y_offset, laptop_length):
         position = self.laptop_servo.position
@@ -140,3 +113,4 @@ class Robot(object):
     
     def set_arm_position(self, position):
         self.arm_servo.set_position(position)
+        

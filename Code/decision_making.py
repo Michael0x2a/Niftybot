@@ -72,7 +72,8 @@ class ApproachState(object):
         pass
         
 
-    def loop(self, humans):
+    def loop(self, data):
+        humans = data.get('humans', [])
         centroid = sensor_analysis.get_centroid(humans)
         if len(humans) == 0:
             return 'waiting'
