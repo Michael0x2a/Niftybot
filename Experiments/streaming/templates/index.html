@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Flask/Gevent WebSocket Test</title>
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            if ("WebSocket" in window) {
+                /*ws = new WebSocket("ws://" + document.domain + ":5000/api");
+                ws.onmessage = function (msg) {
+                    $("#log").html(msg.data);
+                };
+                ws.onerror = function (e) {
+                    alert(e);
+                };*/
+                
+                cam = new WebSocket("ws://" + document.domain + ":5000/camera");
+                cam.onmessage = function (msg) {
+                    $("#cam").attr('src', 'data:image/jpg;base64,' + msg.data);
+                    //$("#log").html(msg.data);
+                };
+                cam.onerror = function(e) {
+                    console.log(e);
+                }
+            } else {
+                alert("WebSocket not supported");
+            }
+            /*
+            $('form').submit(function(event){
+                ws.send($('#data').val())
+                return false;
+            });*/
+        });
+    </script>
+</head>
+<body>
+    <h1>Send:</h1>
+    <form method='POST' action='#'>
+        <textarea name='data' id="data"></textarea>
+        <div><input type='submit'></div>
+    </form>
+    <h1>Receive:</h1>
+    <div id="log"></div>
+    <img id="cam" src="" width="640" height="480" />
+</body>
+</html> 

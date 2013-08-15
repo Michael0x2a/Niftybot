@@ -131,7 +131,7 @@ class ControlPanel(object):
             ('robot', self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera)), 
             ('state', self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera, robot_actions.Robot))]
         
-        self.cam = scv.Camera(0)
+        self.cam = scv.Camera(1)
         self.images = sensor_analysis.ImageProvider(self.cam)
         self.is_manual = False
             
