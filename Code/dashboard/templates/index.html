@@ -5,6 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>{{ name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" type="text/css">
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            var updateValues = function() {
+                
+            
+            };
+            
+            window.setInterval(updateValues, 500);
+        });
+    </script>
 </head>
 <body>
     <div id="wrapper">
@@ -12,11 +23,15 @@
             <h1>{{ name }}</h1>
         </div>
         <div id="widgets">
-            <div class="widget" id="video">
-                
+            <div class="widget" id="video-widget">
+                <h2>Video feed</h2>
+                <div id="video">
+                    <p>Video here</p>
+                </div>
             </div>
-            <div class="widget" id="robot">
-            
+            <div class="widget" id="robot-widget">
+                <h2>Robot state</h2>
+                <ul id="robot-state"></ul>
             </div>
             <div class="widget" id="state">
             

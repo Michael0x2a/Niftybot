@@ -176,6 +176,7 @@ class ControlPanel(object):
                 # Processing
                 features = self.images.get_features()
                 self.data['humans'] = features
+                self.data['centroid'] = sensor_analysis.get_centroid(features)
                 
                 for name, obj in self.get_inspected():
                     self.data[name] = obj
