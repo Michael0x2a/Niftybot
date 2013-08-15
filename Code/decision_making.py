@@ -71,23 +71,36 @@ class ApproachState(object):
     def startup(self):
         pass
         
-    def loop(self, data):
-        humans = data.get('humans', [])
+
+    def loop(self, humans):
         centroid = sensor_analysis.get_centroid(humans)
         if len(humans) == 0:
             return 'waiting'
+            
         self.x_offset = centroid[0]
+        
         if self.x_offset < 300:
-            self.robot.set_right_speed(0.5)
-            self.message = "Rotate right"
-        elif self.x_offset > 340:
             self.robot.set_left_speed(0.5)
             self.message = "Rotate left"
+        elif self.x_offset > 340:
+            self.robot.set_right_speed(0.5)
+            self.message = "Rotate right"
         else:
             self.robot.set_forward_speed(0.5)
             self.message = "Go forward"
-        return None
         
+        self.y_offset = centroid[1]        
+        
+        if self.y_offset < 220:
+            self.robot.adjust_laptop_tilt(-10)
+        elif self.y_offset > 260:
+            self.robot.adjust_laptop_tilt(10)
+        else:
+            pass
+        
+            
+            
+        return None
     def end(self):
         pass
         

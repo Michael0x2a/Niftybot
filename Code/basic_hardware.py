@@ -41,10 +41,10 @@ because of these two reasons.
 After reading this file, move on to `sensor_analysis.py`
 '''
 
-
+import math
 import time
-
-import Arduino
+import sys
+import arduino_modified as Arduino
 import SimpleCV as scv
         
 class LedLight(object):
@@ -87,10 +87,31 @@ class Motor(object):
     '''
     Creates a single motor, and sets the speed.
     '''
-    def __init__(self, arduino, pin):
+    def __init__(self, arduino, index):
         self.arduino = arduino
-        self.pin = pin
         self.speed = 0
+        self.index = index        
+        
+        assert(self.index in [1, 2])
+        if self.index == 1:
+            self.pins = {"PWM": 3, "direction": 12}
+        
+            # PWM control for motor outputs 1 and 2
+            self.arduino.pinMode(3, "OUTPUT")
+            
+            # Directional control for motor outputs 1 and 2
+            self.arduino.pinMode(12, "OUTPUT")
+            
+        else:
+            self.pins = {"PWM": 11, "direction": 13}
+            
+            # PWM control for motor outputs 3 and 4
+            self.arduino.pinMode(11, "OUTPUT")
+            
+            # Directional control for motor outputs 3 and 4
+            self.arduino.pinMode(13, "OUTPUT")
+        
+
     
     def set_speed(self, speed):
         '''
@@ -99,9 +120,27 @@ class Motor(object):
         motor.set_speed(0) will shut off the motor.
         
         The speed must be within -1 and 1 (for now).
+        
+        At the moment, positive speeds cause the wheel powered by the motor to spin towards
+        the front of the robot (forward).
         '''
+        self.speed = speed        
+        
+        PWM = self.pins["PWM"]
+        dir = self.pins["direction"]
+        
         assert(-1 <= speed <= 1)
-        self.speed = speed
+        
+        if self.speed > 0:
+            self.arduino.digitalWrite(dir, "HIGH")
+        else:
+            self.arduino.digitalWrite(dir, "LOW")
+                
+        self.arduino.analogWrite(PWM, math.fabs(self.speed)*255)
+        
+    def stop(self):
+        self.set_speed(0)
+        
         
 class Servo(object):
     '''
@@ -117,8 +156,12 @@ class Servo(object):
         self.pin = pin
         self.position = 0
         
-    def set_position(self, position):
+        self.arduino.Servos.attach(self.pin)
+        
+    def set_angle(self, position):
         self.position = position
+        self.arduino.Servos.write(self.pin, position)
+        
         
 class Encoder(object):
     '''
@@ -137,6 +180,31 @@ class Encoder(object):
         
     def get_distance(self):
         pass
+        
+class Camera(object):
+    '''
+    Represents a "camera" image. Currently grabs the image from
+    the webcam, not from the Arduino.
+    '''
+    def __init__(self, arduino):
+        self.arduino = arduino
+        self.cam = scv.Camera(0)
+     
+    def get_image(self):
+        '''
+        Returns a single frame from the camera as a SimpleCV Image
+        object.
+        '''
+        return self.cam.getImage()
+        
+    def enable_camera(self):
+        '''Currently not implemented; the camera is always enabled.'''
+        pass
+        
+    def disable_camera(self):
+        '''Currently not implemented; the camera is always enabled.'''
+        pass
+        
         
 class FakeArduino(object):
     '''
@@ -162,17 +230,26 @@ class FakeArduino(object):
     def digitalWrite(self, pin, state):
         self.pins[pin] = state
         
-def test():
+    def analogWrite(self, pin, value):
+        self.pins[pin] = value
+        
+def test(arduino):
     '''
     Tests to make sure we're connected to the Arduino by toggling
     the diagnostic light once a second.
     '''
-    arduino = Arduino.Arduino()
     diagnostic_light = LedLight(arduino, 13)
     while True:
         diagnostic_light.toggle()
         time.sleep(1)
         
-if __name__ == '__main__':
-    test()
+def test_motor(speed=0.5):
+    board = Arduino.Arduino("9600")
+    motor = Motor(board, 1)
+    motor.set_speed(speed)
+    test(board)
     
+        
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        test_motor(sys.argv[1])
