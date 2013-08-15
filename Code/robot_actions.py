@@ -100,11 +100,11 @@ class Robot(object):
         return self
         
     def set_laptop_tilt(self, position):
-        self.laptop_servo.set_position(position)
+        self.laptop_servo.set_angle(position)
         
     def adjust_laptop_tilt(self, increment):
         position = self.laptop_servo.position
-        self.set_laptop_tilt(self, position+increment)
+        self.set_laptop_tilt(position+increment)
     
     def smart_adjust_tilt(self, y_offset, laptop_length):
         position = self.laptop_servo.position
@@ -112,5 +112,5 @@ class Robot(object):
         self.set_laptop_tilt(new_position)
     
     def set_arm_position(self, position):
-        self.arm_servo.set_position(position)
+        self.arm_servo.set_angle(position)
         

@@ -8,10 +8,42 @@
     <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function(){
-            var updateValues = function() {
-                
+            var url = "http://" + document.domain + ":5000";
             
-            };
+            function isPrimitive(obj) {
+                var isBool = (typeof obj == "boolean" || obj instanceof Boolean);
+                var isNum = (typeof obj == "number" || obj instanceof Number);
+                var isString = (typeof obj == "string" || obj instanceof String);
+                
+                return isBool || isNum || isString;
+            }
+            
+            function parseJSON(data)
+            {
+                var output = "<ul>";
+                $.each(data.items, function(index, element) {
+                    alert(element + " : " + data[element]);
+                    if (isPrimitive(data[element])) {
+                        output += parseSingle(element, data[element])
+                    } else {
+                        var temp = "<li>" + element + parseJSON(data[element]) + "</li>";
+                        output += temp;
+                    }
+                });
+                return output + "</ul>";
+            }
+            
+            function parseSingle(name, data)
+            {
+                return "<li>" + name + ": " + data + "</li>";
+            }
+            
+            function updateValues() {
+                $.getJSON(url + "/state/robot")
+                    .done(function(data) {
+                        $("#robot-state").html(parseJSON(data["robot"]));
+                    });
+            }
             
             window.setInterval(updateValues, 500);
         });
@@ -31,7 +63,7 @@
             </div>
             <div class="widget" id="robot-widget">
                 <h2>Robot state</h2>
-                <ul id="robot-state"></ul>
+                <div id="robot-state"></div>
             </div>
             <div class="widget" id="state">
             

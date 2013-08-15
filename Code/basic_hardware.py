@@ -192,10 +192,13 @@ class FakeArduino(object):
         
 class FakeServos(object):
     def __init__(self):
-        self.servos = []
+        self.servos = {}
         
     def attach(self, pin, *args, **kwargs):
-        self.servos.append(pin)
+        self.servos[pin] = 0
+        
+    def write(self, pin, position):
+        self.servos[pin] = position
         
 def test(arduino):
     '''
