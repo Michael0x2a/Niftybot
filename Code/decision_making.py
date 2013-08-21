@@ -57,6 +57,11 @@ class WaitingState(object):
         if len(data.get('humans', [])) > 0:
             return "approach"
         return None
+
+    def draw(self, data, window):
+        window.draw_mood('blue')
+        window.draw_text('Hello?')
+
     def end(self):
         pass
         
@@ -99,7 +104,9 @@ class ApproachState(object):
         else:
             pass
         
-            
+    def draw(self, data, window):
+        window.draw_mood('green')
+        window.draw_text('I see you!')
             
         return None
     def end(self):
@@ -136,6 +143,10 @@ class ManualControlState(object):
         right_wheel = clamp(right_wheel, max_speed)
         
         self.robot.set_speed(left_wheel, right_wheel)
+
+    def draw(self, data, window):
+        window.draw_mood('purple')
+        window.draw_text('MANUAL CONTROL')
         
     def end(self):
         self.robot.set_speed(0, 0)
@@ -166,6 +177,10 @@ class StateMachine(object):
             self.state = self.states[next]
             self.state.startup()
             self.state_name = next
+
+    def draw(self, data, window):
+        self.state.draw(data, window)
+        window.heartbeat()
             
     def intercept_manual_control(self, data, next):
         is_manual = data.get('manual', False)

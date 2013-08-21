@@ -48,8 +48,8 @@ class Dashboard(multiprocessing.Process):
                 try:
                     if name not in self.data.keys():
                         return flask.jsonify({
-                            success: False, 
-                            reason: "could not find {0}".format(name)
+                            "success": False, 
+                            "reason": "could not find {0}".format(name)
                         })
                     if flask.request.method == 'GET':
                         return flask.jsonify(make_safe({
@@ -112,4 +112,10 @@ def run_independently(name='Dashboard', host='0.0.0.0', debug=True):
     
     dashboard = Dashboard(name, {"test": "value"}, multiprocessing.Queue())
     dashboard.setup()
-    dashboard.app.run(host=host, debug=True)
+
+    server = WSGIServer(('', 5000), dashboard.app, handler_class=WebSocketHandler)
+    server.serve_forever()
+        
+    #dashboard.app.run(host=host, debug=True)
+
+

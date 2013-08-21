@@ -79,3 +79,8 @@ li{
 #robot .hidden{
     color:#555;
 }
+
+.control{
+    border:1px solid #aaa;
+}
+

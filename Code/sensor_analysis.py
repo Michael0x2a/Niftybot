@@ -68,6 +68,7 @@ from __future__ import division
 
 import multiprocessing
 import Queue
+import time
 
 import SimpleCV as scv
 
@@ -252,9 +253,11 @@ class ImageProvider(object):
     This class provides a friendly way to process features in a separate process
     and return results.
     '''
-    def __init__(self, cam):
+    def __init__(self, cam, delta=1):
         self.cam = cam
         self.features = []
+        self.last = time.time()
+        self.delta = delta
         
     def start(self, feature):
         '''
@@ -297,7 +300,10 @@ class ImageProvider(object):
             features = self.features_queue.get(False)
             self.images_queue.put(img.toString())
             if features is not None:
+                self.last = time.time()
                 self.features = features
+            elif (time.time() - self.last) > self.delta:
+                self.features = []
         except Queue.Empty:
             pass
         

@@ -22,7 +22,6 @@ to power the state machine.
 Technically, we could have used SimpleCV's display window. However, I 
 chose to use pygame for the additional flexibility it gave us.
 
-
 ## Dependencies ##
 
 This layer requires every module within this project, the SimpleCV
@@ -45,12 +44,15 @@ import basic_hardware
 import sensor_analysis
 import robot_actions
 import decision_making
+import drawing
 import dashboard
 
 import arduino_modified as Arduino
 import SimpleCV as scv
 import cv2
 import pygame
+
+DEBUG = False
 
 
 def inspect(thing, layers=1, prettyprint = False, exclude=[]):
@@ -122,11 +124,10 @@ class ControlPanel(object):
         
     def setup(self):
         pygame.init()
-        self.size = (1200, 480)
-        self.screen = pygame.display.set_mode(self.size)
-        pygame.display.set_caption("Niftybot")
-        self.font = pygame.font.Font(pygame.font.get_default_font(), 12)
-        
+        self.window = drawing.Window()
+        self.screen = self.window.screen
+        self.font = pygame.font.SysFont("arial", 12)
+
         self.to_inspect = [
             ('robot', self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera)), 
             ('state', self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera, robot_actions.Robot))]
@@ -183,14 +184,18 @@ class ControlPanel(object):
                 
                 # Handling decisions
                 self.state.loop(self.data)
-                
+                if not DEBUG:
+                    self.state.draw(self.data, self.window)
+                else:
+                    self.debug(image, features)
+
                 # Display
-                self.draw_camera_feed(image)
-                self.draw_features(features)
-                self.draw_inspected(660, 20)
+                #self.draw_camera_feed(image)
+                #self.draw_features(features)
+                #self.draw_inspected(660, 20)
                 
                 # Bookkeeping
-                self.heartbeat()
+                #self.heartbeat()
         except:
             raise
         finally:
@@ -198,6 +203,12 @@ class ControlPanel(object):
             self.images.end()
             self.dashboard.terminate()
     
+    def debug(self, image, features):
+        self.draw_camera_feed(image)
+        self.draw_features(features)
+        self.draw_inspected(660, 20)
+        self.heartbeat()        
+
     def draw_camera_feed(self, image):
         '''Draws the camera image to the pygame surface.'''
         surface = image.getPGSurface()
@@ -277,6 +288,9 @@ class ControlPanel(object):
             if event.key == pygame.K_m:
                 self.is_manual = not self.is_manual
                 self.data['manual'] = self.is_manual
+            if event.key == pygame.K_ESCAPE:
+                pygame.quit()
+                sys.exit()
             
     def heartbeat(self):
         '''Contains the bare minimum to keep the program alive.'''

@@ -1,0 +1,20 @@
+Metadata:
+    Timestamp: 2013-08-17 14:02:38.027000
+    Version:   1.0.0
+
+BEGIN MESSAGE:
+
+Top-level exception: Traceback (most recent call last):
+  File ".\niftybot.py", line 134, in main
+    user_interface.main()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 290, in main
+    control.mainloop()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 177, in mainloop
+    features = self.images.get_features()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\sensor_analysis.py", line 304, in get_features
+    elif (time.time() - self.last) > 2:
+AttributeError: 'ImageProvider' object has no attribute 'last'
+
+END MESSAGE
+
+~~~~~~~~~~~~~~~~~~~~~~
