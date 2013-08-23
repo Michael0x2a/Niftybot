@@ -87,28 +87,30 @@ class Motor(object):
     '''
     Creates a single motor, and sets the speed.
     '''
-    def __init__(self, arduino, index):
+    def __init__(self, arduino, side):
         self.arduino = arduino
         self.speed = 0
-        self.index = index        
+        self.side = side        
         
-        assert(self.index in [1, 2])
-        if self.index == 1:
-            self.pins = {"PWM": 3, "direction": 12}
+        assert(self.side in ["left", "right"])
+        if self.side == "left":
+            self.pins = {"PWM": 9, "dir": [11, 8]}
         
             # PWM control for motor outputs 1 and 2
-            self.arduino.pinMode(3, "OUTPUT")
+            self.arduino.pinMode(9, "OUTPUT")
             
             # Directional control for motor outputs 1 and 2
-            self.arduino.pinMode(12, "OUTPUT")
-            
-        else:
-            self.pins = {"PWM": 11, "direction": 13}
-            
-            # PWM control for motor outputs 3 and 4
+            self.arduino.pinMode(8, "OUTPUT")
             self.arduino.pinMode(11, "OUTPUT")
             
+        elif self.side == "right":
+            self.pins = {"PWM": 10, "dir": [12, 13]}
+            
+            # PWM control for motor outputs 3 and 4
+            self.arduino.pinMode(10, "OUTPUT")
+            
             # Directional control for motor outputs 3 and 4
+            self.arduino.pinMode(12, "OUTPUT")
             self.arduino.pinMode(13, "OUTPUT")
         
 
@@ -127,21 +129,38 @@ class Motor(object):
         self.speed = speed        
         
         PWM = self.pins["PWM"]
-        dir = self.pins["direction"]
+        dir_A = self.pins["dir"][0]
+        dir_B = self.pins["dir"][1]
         
         assert(-1 <= speed <= 1)
         
+
         if self.speed > 0:
-            self.arduino.digitalWrite(dir, "HIGH")
+            self.arduino.digitalWrite(dir_A, "HIGH")
+            self.arduino.digitalWrite(dir_B, "LOW")
+        elif self.speed < 0:   
+            self.arduino.digitalWrite(dir_A, "LOW")
+            self.arduino.digitalWrite(dir_B, "HIGH")
         else:
-            self.arduino.digitalWrite(dir, "LOW")
-                
+            self.arduino.digitalWrite(dir_A, "LOW")
+            self.arduino.digitalWrite(dir_B, "LOW")
+                        
         self.arduino.analogWrite(PWM, math.fabs(self.speed)*255)
         
     def stop(self):
         self.set_speed(0)
         
+  
+class FakeServos(object):
+    def __init__(self):
+        pass
+    def attach(self, pin):
+        pass
         
+    def write(pin, position):
+        pass
+
+  
 class Servo(object):
     '''
     Although both motors and servos are things that spin, they are different
@@ -223,6 +242,7 @@ class FakeArduino(object):
         self.args = args
         self.kwargs = kwargs
         self.pins = {}
+        self.Servos = FakeServos()
         
     def pinMode(self, pin, mode):
         self.pins[pin] = mode
@@ -232,6 +252,8 @@ class FakeArduino(object):
         
     def analogWrite(self, pin, value):
         self.pins[pin] = value
+        
+    
         
 def test(arduino):
     '''

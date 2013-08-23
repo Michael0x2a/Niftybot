@@ -56,16 +56,16 @@ class Robot(object):
                 self.arduino = basic_hardware.FakeArduino()
         else:
             self.arduino = arduino
-            
 
         if arm_servo is None:
-            self.arm_servo = basic_hardware.Servo(arduino, 9)
+            
+            self.arm_servo = basic_hardware.Servo(self.arduino, 5)
         else:
             self.arm_servo = arm_servo
             
         
         if laptop_servo is None:
-            self.laptop_servo = basic_hardware.Servo(arduino, 6)
+            self.laptop_servo = basic_hardware.Servo(self.arduino, 6)
         else:
             self.laptop_servo = laptop_servo
         
@@ -73,8 +73,8 @@ class Robot(object):
             
             
         self.diagnostic_light = basic_hardware.LedLight(self.arduino, 13)
-        self.left_wheel = basic_hardware.Motor(self.arudino, 1)
-        self.right_wheel = basic_hardware.Motor(self.arduino, 2)
+        self.left_wheel = basic_hardware.Motor(self.arduino, "left")
+        self.right_wheel = basic_hardware.Motor(self.arduino, "right")
         self.camera = basic_hardware.Camera(self.arduino)
         
     def set_speed(self, left, right):
@@ -126,7 +126,7 @@ class Robot(object):
         pass
         
     def set_laptop_tilt(self, position):
-        self.laptop_servo.set_position(position)
+        self.laptop_servo.set_angle(position)
         
     def adjust_laptop_tilt(self, increment):
         position = self.laptop_servo.position
@@ -139,4 +139,4 @@ class Robot(object):
         self.set_laptop_tilt(new_position)
     
     def set_arm_position(self, position):
-        self.arm_servo.set_position(position)
+        self.arm_servo.set_angle(position)
