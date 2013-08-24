@@ -152,8 +152,14 @@ class ControlPanel(object):
         self.images.start('face')
         
         self.mailbox = multiprocessing.Queue()
+        self.image_queue = multiprocessing.Queue(maxsize=1)
         self.data = multiprocessing.Manager().dict()
-        self.dashboard = dashboard.Dashboard('dashboard', self.data, self.mailbox)
+        self.dashboard = dashboard.Dashboard(
+                'dashboard', 
+                self.data, 
+                self.mailbox, 
+                self.image_queue, 
+                (640, 480))
         self.dashboard.start()
 
         
@@ -179,6 +185,9 @@ class ControlPanel(object):
                 
                 image = self.cam.getImage()
                 image = image.flipHorizontal()
+
+                if self.image_queue.empty():
+                    self.image_queue.put(image.toString())
                 
                 #self.try_manual_control()
                 

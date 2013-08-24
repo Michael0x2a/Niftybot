@@ -9,8 +9,7 @@
     <script type="text/javascript" src="{{ url_for('static', filename='mainscript.js') }}"></script>
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function(){
-           updateRobot();
-           updateState();
+           updateVideo("#cam");
         });
     </script>
 </head>
@@ -20,15 +19,9 @@
             <h1>{{ name }}</h1>
         </div>
         <div id="widgets">
-            <div id="debug-tab">
-                <div class="widget" id="robot-widget">
-                    <h2>Robot state</h2>
-                    <div id="robot-state"></div>
-                </div>
-                <div class="widget" id="decision-widget">
-                    <h2>Decision state</h2>
-                    <div id="decision-state"></div>
-                </div>
+            <div class="widget" id="video-widget">
+                <h2>Video feed</h2>
+                <img id="cam" height="480" width="640" />
             </div>
         </div>
     </div>

@@ -20,7 +20,7 @@ class Window(object):
         self.width, self.height = self.screen.get_size()
 
         pygame.display.set_caption("Niftybot")
-        self.font = pygame.font.SysFont("Segoe UI Light", 90, False, False)
+        self.font = pygame.font.SysFont("arial", 90, False, False)
 
     def draw_mood(self, mood):
         self.screen.fill(Window.MOODS[mood])
@@ -58,7 +58,7 @@ class Button(object):
     def __init__(self, text, position, font_size=80):
         self.text = text
         self.font_size = font_size
-        self.font = pygame.font.SysFont("segoe ui light", font_size)
+        self.font = pygame.font.SysFont("arial", font_size)
         self.text_surface = self.font.render(self.text, True, (255, 255, 255))
         self.width, self.height = self.text_surface.get_size()
         x, y = position

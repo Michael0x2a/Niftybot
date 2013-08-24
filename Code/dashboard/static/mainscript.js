@@ -206,3 +206,16 @@ function toggleManual(htmlId) {
     });
 }
 
+function updateVideo(htmlId) {
+    if ("WebSocket" in window) {
+        var cam = new WebSocket("ws://" + document.domain + ":5000/camera");
+        cam.onmessage = function (msg) {
+            $(htmlId).attr('src', 'data:image/jpg;base64,' + msg.data);
+        };
+        cam.onerror = function(e) {
+            console.log(e);
+        }
+    } else {
+        alert("Warning: Your browser does not support websockets. You cannot view the camera feed.");
+    }
+}

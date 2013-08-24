@@ -16,16 +16,21 @@ After reading this file, move to `errors.py`
 import multiprocessing
 import json
 import traceback
+import cStringIO
+import time
 
 import flask
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
+import SimpleCV as scv
 
 class Dashboard(multiprocessing.Process):
-    def __init__(self, name, data, mailbox):
+    def __init__(self, name, data, mailbox, image_queue, image_size):
         super(Dashboard, self).__init__(name=name)
         self.data = data
         self.mailbox = mailbox
+        self.image_queue = image_queue
+        self.image_size = image_size
         
     def setup(self):
         def make_safe(thing):
@@ -37,6 +42,10 @@ class Dashboard(multiprocessing.Process):
             @app.route('/', methods=['GET'])
             def index():
                 return flask.render_template('index.html', name="Dashboard :: Niftybot")
+
+            @app.route('/webcam', methods=['GET'])
+            def webcam():
+                return flask.render_template('webcam.html', name="Video feed :: Niftybot")
 
             @app.route('/control', methods=['GET'])
             def control():
@@ -67,14 +76,35 @@ class Dashboard(multiprocessing.Process):
                 except:
                     error = traceback.format_exc()
                     print error
-                    
-            '''
+
+
             @app.route('/camera')
             def camera():
-                if request.environ.get('wsgi.websocket'):
-                    ws = request.environ['wsgi.websocket']
-            '''
-                    
+                try:
+                    if flask.request.environ.get('wsgi.websocket'):
+                        ws = flask.request.environ['wsgi.websocket']
+            
+                        while True:
+                            time.sleep(0.05)
+                            if self.image_queue.empty():
+                                continue
+
+                            raw = self.image_queue.get()
+            
+                            # Convert the raw image string into a SimpleCV image object.
+                            bmp = scv.cv.CreateImageHeader(self.image_size, scv.cv.IPL_DEPTH_8U, 3)
+                            scv.cv.SetData(bmp, raw)
+                            scv.cv.CvtColor(bmp, bmp, scv.cv.CV_RGB2BGR)
+                            image = scv.Image(bmp).getPIL()
+
+                            # Send to client in jpg format.
+                            data = cStringIO.StringIO()
+                            image.save(data, 'JPEG')
+                            ws.send(data.getvalue().encode("base64"))
+                            data.close()
+                except:
+                    error = traceback.format_exc()
+                    print error
                 
             return app
             
