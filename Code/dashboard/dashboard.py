@@ -37,6 +37,10 @@ class Dashboard(multiprocessing.Process):
             @app.route('/', methods=['GET'])
             def index():
                 return flask.render_template('index.html', name="Dashboard :: Niftybot")
+
+            @app.route('/control', methods=['GET'])
+            def control():
+                return flask.render_template('control.html', name="Manual Control :: Niftybot")
                 
             @app.route('/state', methods=['GET'])
             def status():
@@ -56,12 +60,16 @@ class Dashboard(multiprocessing.Process):
                             "success": True, 
                             name: self.data[name]}))
                     else:
-                        value = flask.request.form(['value'])
-                        try:
-                            self.data['name'] = float(value)
-                        except ValueError:
-                            self.data['name'] = value
-                        return flask.jsonify({success: True})
+                        name = flask.request.json['name']
+                        value = flask.request.json['value']
+                        #self.data[name] = value
+                        self.mailbox.put_nowait([name, value])
+                        print name, value
+                        #try:
+                        #    self.data[name] = float(value)
+                        #except ValueError:
+                        #    self.data[name] = value
+                        return flask.jsonify({"success": True})
                 except:
                     error = traceback.format_exc()
                     print error

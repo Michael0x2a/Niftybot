@@ -162,25 +162,31 @@ class ControlPanel(object):
         self.data['straight'] = 0
         self.data['rotate'] = 0
         self.data['manual'] = False
+        self.data['mousepress'] = None
         
         try:    
             while True:
-                # I/O
-                self.process_events()
+                # I/O: From computer
+                mousepress = self.process_events()
                 
                 image = self.cam.getImage()
                 image = image.flipHorizontal()
                 
-                self.try_manual_control()
+                #self.try_manual_control()
                 
+                #I/O: Remotely: from web interface
                 while not self.mailbox.empty():
                     name, value = self.mailbox.get_nowait()
+                    print "PP", name, value
                     self.data[name] = value
                 
                 # Processing
                 features = self.images.get_features()
+
+                # Update state
                 self.data['centroid'] = sensor_analysis.get_centroid(features)
                 self.data['humans'] = features
+                self.data['mousepress'] = mousepress
                 
                 for name, obj in self.get_inspected():
                     print(name)
@@ -297,6 +303,9 @@ class ControlPanel(object):
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            return event.pos
+        return [-1, -1]
             
     def heartbeat(self):
         '''Contains the bare minimum to keep the program alive.'''

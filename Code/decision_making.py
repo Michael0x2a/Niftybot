@@ -39,9 +39,11 @@ After reading this file, move on to `user_interface.py
 '''
 
 import math
+import time
 
 import sensor_analysis
 import robot_actions
+import drawing
 
 class WaitingState(object):
     '''Waits for a human to appear, then starts the `approach` state'''
@@ -72,11 +74,11 @@ class ApproachState(object):
         self.name = 'approach'
         self.message = 'Approaching person'
         self.robot = robot
-        self.x_offset = 0
         
     def startup(self):
-        pass
-        
+        self.pressed = None
+        self.pressed_time = None
+        self.x_offset = 0
 
     def loop(self, data):
         humans = data.get('humans', [])
@@ -85,6 +87,19 @@ class ApproachState(object):
             return 'waiting'
             
         self.x_offset = centroid[0]
+<<<<<<< HEAD
+=======
+        
+        if self.pressed is not None:
+            if self.pressed_time is None:
+                self.pressed_time = time.time()
+            delta = time.time() - self.pressed_time
+            if delta < 2:
+                return
+            else:
+                return 'backoff'
+
+>>>>>>> Fixed issues with UI, improved decision-making, validated end-to-end performance
         if self.x_offset < 300:
             self.robot.set_left_speed(1)
             self.message = "Rotate left"
@@ -97,6 +112,7 @@ class ApproachState(object):
 
 
         
+<<<<<<< HEAD
         # if self.y_offset < 220:
         #    self.robot.adjust_laptop_tilt(-10)
         # elif self.y_offset > 260:
@@ -104,13 +120,64 @@ class ApproachState(object):
         # else:
         #    pass
         
+=======
+        self.y_offset = centroid[1]        
+        
+        if self.y_offset < 220:
+            self.robot.adjust_laptop_tilt(-10)
+        elif self.y_offset > 260:
+            self.robot.adjust_laptop_tilt(10)
+        else:
+            pass
+
+>>>>>>> Fixed issues with UI, improved decision-making, validated end-to-end performance
     def draw(self, data, window):
         window.draw_mood('green')
-        window.draw_text('I see you!')
-            
+        if self.pressed == 'Yes':
+            window.draw_text("Thank you!")
+        elif self.pressed == 'No':
+            window.draw_text('Let me know if', 'you change your mind!')
+        else:
+            window.draw_text('Would you like to', 'donate some money?')
+        buttons = drawing.make_buttons(window, "Yes", "No")
+        for button in buttons:
+            window.draw_button(button)
+            if button.is_pressed(data.get('mousepress', [0, 0])):
+                self.pressed = button.text
+            if self.pressed == button.text:
+                window.draw_filled_button(button)
+
         return None
+
     def end(self):
         pass
+
+class BackOffState(object):
+    def __init__(self, robot):
+        self.name = 'backoff'
+        self.message = 'Donation finished; backing off'
+        self.robot = robot
+
+    def startup(self):
+        self.robot.set_speed(0, 0)
+        self.start = time.time()
+
+    def loop(self, data):
+        delta = time.time() - self.start
+        if 0 < delta <= 5:
+            self.robot.set_speed(-0.5, 0.5)
+        elif 5 < delta <= 10:
+            self.robot.set_speed(0.5, 0.5)
+        elif delta > 10:
+            return 'waiting'
+
+    def draw(self, data, window):
+        window.draw_mood('orange')
+        window.draw_text('Hmm...')
+
+    def end(self):
+        self.robot.set_speed(0, 0)
+
         
 class ManualControlState(object):
     def __init__(self, robot):
@@ -150,10 +217,6 @@ class ManualControlState(object):
         
     def end(self):
         self.robot.set_speed(0, 0)
-        
-        
-        
-        
         
 class StateMachine(object):
     '''
@@ -200,6 +263,7 @@ def startup(robot):
         'waiting': WaitingState(robot),
         'approach': ApproachState(robot),
         'manual': ManualControlState(robot),
+        'backoff': BackOffState(robot),
     }
     return StateMachine(robot, 'waiting', states)
             

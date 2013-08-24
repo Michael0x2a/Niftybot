@@ -13,11 +13,9 @@
                 ws.onerror = function (e) {
                     alert(e);
                 };*/
-                
                 cam = new WebSocket("ws://" + document.domain + ":5000/camera");
                 cam.onmessage = function (msg) {
                     $("#cam").attr('src', 'data:image/jpg;base64,' + msg.data);
-                    //$("#log").html(msg.data);
                 };
                 cam.onerror = function(e) {
                     console.log(e);
