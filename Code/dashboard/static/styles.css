@@ -1,4 +1,86 @@
-#wrapper{
-    padding:1em;
-    background-color:yellow;
+/**
+ * Setup, general settings, and misc. details.
+ *
+ * Font-stacks courtesy of cssfontstack.com
+ */
+*{
+    -webkit-box-sizing:border-box;
+       -moz-box-sizing:border-box;
+            box-sizing:border-box;
 }
+
+body{
+    padding:1em;
+    background-color:#bed6ee;
+    font-family:Cambria,Georgia,serif;
+}
+
+#wrapper{
+    /* Width should be some multiple of 
+     * padding + (palette square + palette square margin) * CONSTANT
+     * ...which is:
+     * 2 + 4.5 * CONSTANT
+     */
+    min-width:20em;
+    margin:0 auto;
+    padding:1em;
+    background-color:#fff;
+}
+
+h1,h2,h3,h4,h5,h6{
+    font-family:"Avant Garde",Avantgarde,"Century Gothic",CenturyGothic,"AppleGothic",sans-serif;
+    font-weight:500;
+    margin:0 0 .5em;
+}
+
+p{
+    margin-bottom:.5em;
+}
+
+ol,ul{
+    list-style-position:inside;
+    margin-bottom:.5em;
+}
+
+li{
+    margin-bottom:.5em;
+}
+
+
+
+
+
+#widgets:after{
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.widget{
+    position:relative;
+    float:left;
+    padding:0 1em 1em;
+    margin:0 0 1em;
+}
+
+
+#video{
+    width:640px;
+    height:480px;
+    background-color:#000;
+    color:#fff;
+}
+
+#robot .value{
+    color:blue;
+    font-weight:700;
+}
+
+#robot .hidden{
+    color:#555;
+}
+
+.control{
+    border:1px solid #aaa;
+}
+

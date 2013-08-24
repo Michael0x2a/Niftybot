@@ -68,6 +68,7 @@ from __future__ import division
 
 import multiprocessing
 import Queue
+import time
 
 import SimpleCV as scv
 
@@ -252,9 +253,11 @@ class ImageProvider(object):
     This class provides a friendly way to process features in a separate process
     and return results.
     '''
-    def __init__(self, cam):
+    def __init__(self, cam, delta=1):
         self.cam = cam
         self.features = []
+        self.last = time.time()
+        self.delta = delta
         
     def start(self, feature):
         '''
@@ -297,7 +300,10 @@ class ImageProvider(object):
             features = self.features_queue.get(False)
             self.images_queue.put(img.toString())
             if features is not None:
+                self.last = time.time()
                 self.features = features
+            elif (time.time() - self.last) > self.delta:
+                self.features = []
         except Queue.Empty:
             pass
         
@@ -322,41 +328,5 @@ def get_centroid(features):
         return (0, 0)
     return (average(center_x), average(center_y))
     
-class EncoderWatcher(object):
-    '''
-    A wrapper class which reads one or more encoders from the
-    `basic_hardware` layer and determines what the average distance
-    between all the encoders are.
-    
-    Not currently implemented.
-    '''
-    def __init__(self, *encoders):
-        self.encoders = encoders
-        self.initial_snapshot = []
-        self.final_snapshot = []
-        
-    def start():
-        self.initial_snapshot = self.get_snapshot()
-        
-    def end():
-        self.final_snapshot = self.get_snapshot()
-        
-    def get_snapshot():
-        return [encoder.get_distance() for encoder in self.encoders]
-        
-    def get_current_distance():
-        return self.calculate_average_distance(
-            self.initial_snapshot, 
-            self.get_snapshot())
-            
-    def get_final_distance():
-        return self.calculate_average_distance(
-            self.initial_snapshot,
-            self.final_snapshot())
-        
-    def calculate_average_distance(start, end):
-        average_start = sum(start) / len(start)
-        average_end = sum(end) / len(end)
-        return average_end - average_start
         
         

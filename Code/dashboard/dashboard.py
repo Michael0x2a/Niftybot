@@ -15,6 +15,7 @@ After reading this file, move to `errors.py`
 
 import multiprocessing
 import json
+import traceback
 
 import flask
 from geventwebsocket.handler import WebSocketHandler
@@ -44,20 +45,26 @@ class Dashboard(multiprocessing.Process):
                 
             @app.route('/state/<name>', methods=['GET', 'PUT'])
             def set_state(name):
-                if name not in self.data.keys():
-                    return flask.jsonify({
-                        success: "false", 
-                        reason: "could not find {0}".format(name)
-                    })
-                if flask.request.method == 'GET':
-                    return flask.jsonify(make_safe({name: + self.data[name]}))
-                else:
-                    value = flask.request.form(['value'])
-                    try:
-                        self.data['name'] = float(value)
-                    except ValueError:
-                        self.data['name'] = value
-                    return flask.jsonify({success: "true"})
+                try:
+                    if name not in self.data.keys():
+                        return flask.jsonify({
+                            "success": False, 
+                            "reason": "could not find {0}".format(name)
+                        })
+                    if flask.request.method == 'GET':
+                        return flask.jsonify(make_safe({
+                            "success": True, 
+                            name: self.data[name]}))
+                    else:
+                        value = flask.request.form(['value'])
+                        try:
+                            self.data['name'] = float(value)
+                        except ValueError:
+                            self.data['name'] = value
+                        return flask.jsonify({success: True})
+                except:
+                    error = traceback.format_exc()
+                    print error
                     
             '''
             @app.route('/camera')
@@ -78,7 +85,7 @@ class Dashboard(multiprocessing.Process):
         # localhost and isn't accessible across the network. By setting
         # the host to '0.0.0.0', the http server will listen for requests
         # from this machine's local ip address.
-        #self.app.run(host = '0.0.0.0', debug=False)
+        #self.app.run(host = '0.0.0.0', debug=True)
         #self.app.run()
         
         #host = '127.0.0.1'
@@ -105,4 +112,10 @@ def run_independently(name='Dashboard', host='0.0.0.0', debug=True):
     
     dashboard = Dashboard(name, {"test": "value"}, multiprocessing.Queue())
     dashboard.setup()
-    dashboard.app.run(host=host, debug=True)
+
+    server = WSGIServer(('', 5000), dashboard.app, handler_class=WebSocketHandler)
+    server.serve_forever()
+        
+    #dashboard.app.run(host=host, debug=True)
+
+

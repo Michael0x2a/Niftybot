@@ -5,6 +5,88 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>{{ name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" type="text/css">
+    <script type="text/javascript" src="{{ url_for('static', filename='jquery-1.10.2.min.js') }}"></script>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            var url = "http://" + document.domain + ":5000";
+            
+            function setupDebug() {
+                function isPrimitive(obj) {
+                    var isBool = (typeof obj === "boolean" || obj instanceof Boolean);
+                    var isNum = (typeof obj === "number" || obj instanceof Number);
+                    var isString = (typeof obj === "string" || obj instanceof String);
+                    var isNull = (obj === null);
+                    
+                    return isBool || isNum || isString || isNull;
+                }
+
+                function parseSingle(name, data)
+                {
+                    return "<li>" + name + ": " + data + "</li>";
+                }
+                
+                function parseJSON(data)
+                {
+                    var output = "<ul>";
+                    $.each(data, function(item, element) {
+                        if (isPrimitive(element)) {
+                            output += parseSingle(item, element);
+                        } else {
+                            var temp = "<li>" + item + parseJSON(element) + "</li>";
+                            output += temp;
+                        }
+                    });
+                    return output + "</ul>";
+                }
+
+                function display(htmlId, data, name) {
+                    if (data.success) {
+                        $(htmlId).html(parseJSON(data[name]));
+                    } else {
+                        $(htmlId).html(data.reason);
+                    }
+                }
+                
+                function updateValues() {
+                    $.getJSON(url + "/state/robot")
+                        .done(function(data) {
+                            display("#robot-state", data, "robot");
+                        });
+                    
+                    $.getJSON(url + "/state/state")
+                        .done(function(data) {
+                            display("#decision-state", data, "state");
+                        });
+
+                }
+
+                window.setInterval(updateValues, 500);
+            }
+
+            function setupControls() {
+                function constructCanvas(htmlId) {
+                    var canvas = $(htmlId);
+                    var canvasObj = {
+                        "canvas": canvas,
+                        "context": canvas.getContext('2d'),
+                        "height": canvas.height,
+                        "width": canvas.width,
+                        "centerx": canvas.width/2,
+                        "centery": canvas.width/2
+                    };
+
+                    return canvasObj;
+                }
+
+
+                
+                var wheels = constructCanvas("#wheels");
+            }
+            
+            setupDebug();
+            setupControls();
+        });
+    </script>
 </head>
 <body>
     <div id="wrapper">
@@ -12,20 +94,27 @@
             <h1>{{ name }}</h1>
         </div>
         <div id="widgets">
-            <div class="widget" id="video">
-                
+            <div class="widget" id="video-widget">
+                <h2>Video feed</h2>
+                <div id="video">
+                    <p>Video here</p>
+                </div>
             </div>
-            <div class="widget" id="robot">
-            
-            </div>
-            <div class="widget" id="state">
-            
+            <div id="debug-tab">
+                <div class="widget" id="robot-widget">
+                    <h2>Robot state</h2>
+                    <div id="robot-state"></div>
+                </div>
+                <div class="widget" id="decision-widget">
+                    <h2>Decision state</h2>
+                    <div id="decision-state"></div>
+                </div>
             </div>
         </div>
+
         <div id="control">
-            <div class="control" id="wheels">
-            
-            </div>
+            <h2>Control</h2>
+            <canvas class="control" id="wheels" width="200" height="200"></canvas>
         </div>
     </div>
 </body>

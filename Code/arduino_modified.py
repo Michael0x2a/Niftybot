@@ -439,9 +439,9 @@ class Servos(object):
                 break
             else:
                 log.debug("trying to attach servo to pin {0}".format(pin))
-        position = 0 #int(rd)
+        position = 20 #int(rd)
         self.servo_pos[pin] = position
-        self.write(pin, 0)
+        self.write(pin, position)
 
     def detach(self, pin):
         position = self.servo_pos[pin]

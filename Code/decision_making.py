@@ -56,7 +56,13 @@ class WaitingState(object):
     def loop(self, data):
         if len(data.get('humans', [])) > 0:
             return "approach"
+            
         return None
+
+    def draw(self, data, window):
+        window.draw_mood('blue')
+        window.draw_text('Hello?')
+
     def end(self):
         pass
         
@@ -72,33 +78,35 @@ class ApproachState(object):
         pass
         
 
-    def loop(self, humans):
+    def loop(self, data):
+        humans = data.get('humans', [])
         centroid = sensor_analysis.get_centroid(humans)
         if len(humans) == 0:
             return 'waiting'
             
         self.x_offset = centroid[0]
-        
         if self.x_offset < 300:
-            self.robot.set_left_speed(0.5)
+            self.robot.set_left_speed(1)
             self.message = "Rotate left"
         elif self.x_offset > 340:
-            self.robot.set_right_speed(0.5)
+            self.robot.set_right_speed(1)
             self.message = "Rotate right"
         else:
-            self.robot.set_forward_speed(0.5)
+            self.robot.set_forward_speed(1)
             self.message = "Go forward"
+
+
         
-        self.y_offset = centroid[1]        
+        # if self.y_offset < 220:
+        #    self.robot.adjust_laptop_tilt(-10)
+        # elif self.y_offset > 260:
+        #    self.robot.adjust_laptop_tilt(10)
+        # else:
+        #    pass
         
-        if self.y_offset < 220:
-            self.robot.adjust_laptop_tilt(-10)
-        elif self.y_offset > 260:
-            self.robot.adjust_laptop_tilt(10)
-        else:
-            pass
-        
-            
+    def draw(self, data, window):
+        window.draw_mood('green')
+        window.draw_text('I see you!')
             
         return None
     def end(self):
@@ -135,6 +143,10 @@ class ManualControlState(object):
         right_wheel = clamp(right_wheel, max_speed)
         
         self.robot.set_speed(left_wheel, right_wheel)
+
+    def draw(self, data, window):
+        window.draw_mood('purple')
+        window.draw_text('MANUAL CONTROL')
         
     def end(self):
         self.robot.set_speed(0, 0)
@@ -165,6 +177,10 @@ class StateMachine(object):
             self.state = self.states[next]
             self.state.startup()
             self.state_name = next
+
+    def draw(self, data, window):
+        self.state.draw(data, window)
+        window.heartbeat()
             
     def intercept_manual_control(self, data, next):
         is_manual = data.get('manual', False)

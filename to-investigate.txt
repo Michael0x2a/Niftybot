@@ -6,3 +6,9 @@ http://stackoverflow.com/questions/7993624/streaming-audio-and-video-with-python
 http://pygstdocs.berlios.de/#video
 http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 http://gstreamer.freedesktop.org/documentation/
+
+
+http://stackoverflow.com/questions/4241992/video-streaming-over-websockets-using-javascript
+https://groups.google.com/a/chromium.org/forum/#!topic/chromium-html5/vsOsSK9XZrE
+http://badankles.com/?p=209
+https://github.com/chrisallick/ProcessingWebSocketVideoStreamer/blob/master/ProcessingWebSocketVideoStreamer.pde
