@@ -129,12 +129,19 @@ class ControlPanel(object):
         self.font = pygame.font.SysFont("arial", 12)
 
         self.to_inspect = [
-        #    ('robot', self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera)), 
-        #    ('state', self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera, robot_actions.Robot))]
-        
+            ('robot', self.robot, 2, (
+                Arduino.Arduino, 
+                basic_hardware.FakeArduino, 
+                scv.Camera)), 
+            ('state', self.state, 3, (
+                Arduino.Arduino, 
+                basic_hardware.FakeArduino, 
+                scv.Camera, 
+                robot_actions.Robot))
         ]
                 
-        
+        self.state.start()
+
         self.cam = scv.Camera(1)
         self.images = sensor_analysis.ImageProvider(self.cam)
         self.is_manual = False
@@ -145,9 +152,16 @@ class ControlPanel(object):
         self.images.start('face')
         
         self.mailbox = multiprocessing.Queue()
+        self.image_queue = multiprocessing.Queue(maxsize=1)
         self.data = multiprocessing.Manager().dict()
-        self.dashboard = dashboard.Dashboard('dashboard', self.data, self.mailbox)
+        self.dashboard = dashboard.Dashboard(
+                'dashboard', 
+                self.data, 
+                self.mailbox, 
+                self.image_queue, 
+                self.images.size)
         self.dashboard.start()
+
         
         
     def mainloop(self):
@@ -162,30 +176,36 @@ class ControlPanel(object):
         self.data['straight'] = 0
         self.data['rotate'] = 0
         self.data['manual'] = False
+        self.data['mousepress'] = None
+        self.data['image_size'] = self.images.size
         
         try:    
             while True:
-                # I/O
-                self.process_events()
+                # I/O: From computer
+                mousepress = self.process_events()
                 
                 image = self.cam.getImage()
                 image = image.flipHorizontal()
+
+                if self.image_queue.empty():
+                    self.image_queue.put(image.toString())
                 
-                self.try_manual_control()
+                #self.try_manual_control()
                 
+                #I/O: Remotely: from web interface
                 while not self.mailbox.empty():
                     name, value = self.mailbox.get_nowait()
                     self.data[name] = value
                 
                 # Processing
                 features = self.images.get_features()
+
+                # Update state
                 self.data['centroid'] = sensor_analysis.get_centroid(features)
                 self.data['humans'] = features
+                self.data['mousepress'] = mousepress
                 
                 for name, obj in self.get_inspected():
-                    print(name)
-                    print(obj)
-                    print(", ")
                     self.data[name] = obj
                 
                 # Handling decisions
@@ -298,6 +318,9 @@ class ControlPanel(object):
             if event.key == pygame.K_ESCAPE:
                 pygame.quit()
                 sys.exit()
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            return event.pos
+        return [-1, -1]
             
     def heartbeat(self):
         '''Contains the bare minimum to keep the program alive.'''

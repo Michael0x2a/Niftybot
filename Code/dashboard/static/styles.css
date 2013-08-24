@@ -40,10 +40,12 @@ p{
 ol,ul{
     list-style-position:inside;
     margin-bottom:.5em;
+    margin-left:0;
 }
 
 li{
     margin-bottom:.5em;
+    padding-left:0;
 }
 
 
@@ -82,5 +84,21 @@ li{
 
 .control{
     border:1px solid #aaa;
+}
+
+.button{
+    width:10em;
+    margin:0 .5em .5em 0;
+    padding:.5em;
+    color:#fff;
+    text-align:center;
+}
+
+.off{
+    background-color:rgb(255, 128, 128);
+}
+
+.on{
+    background-color:rgb(109, 209, 105);
 }
 

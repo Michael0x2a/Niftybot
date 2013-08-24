@@ -173,7 +173,7 @@ class Servo(object):
     def __init__(self, arduino, pin):
         self.arduino = arduino
         self.pin = pin
-        self.position = 0
+        self.position = 50
         
         self.arduino.Servos.attach(self.pin)
         

@@ -274,8 +274,8 @@ class ImageProvider(object):
         Whatever you put in a Queue can be retrieved from the same Queue in an 
         arbitrary number of objects.
         '''
-        img = self.cam.getImage().flipHorizontal()
-        size = img.size()
+        img = self.cam.getImage()#.flipHorizontal()
+        self.size = img.size()
 
         self.features_queue = multiprocessing.Queue()
         
@@ -285,7 +285,7 @@ class ImageProvider(object):
         self.message_queue = multiprocessing.Queue()
         
         self.worker = multiprocessing.Process(target=_get_features, args=(
-            self.features_queue, self.images_queue, self.message_queue, size, 0.5, feature))
+            self.features_queue, self.images_queue, self.message_queue, self.size, 0.5, feature))
         self.worker.start()
         
     def get_features(self):
@@ -294,7 +294,7 @@ class ImageProvider(object):
         (not finished processing), this method will return the last known
         list of features. Otherwise, it'll return the newest one and command
         the worker to start processing a new frame.'''
-        img = self.cam.getImage().flipHorizontal()
+        img = self.cam.getImage()#.flipHorizontal()
         
         try:
             features = self.features_queue.get(False)

@@ -1,5 +1,5 @@
 Metadata:
-    Timestamp: 2013-08-17 14:02:38.027000
+    Timestamp: 2013-08-23 20:07:45.112000
     Version:   1.0.0
 
 BEGIN MESSAGE:
@@ -7,47 +7,9 @@ BEGIN MESSAGE:
 Top-level exception: Traceback (most recent call last):
   File ".\niftybot.py", line 134, in main
     user_interface.main()
-  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 290, in main
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 317, in main
     control.mainloop()
-  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 177, in mainloop
-    features = self.images.get_features()
-  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\sensor_analysis.py", line 304, in get_features
-    elif (time.time() - self.last) > 2:
-AttributeError: 'ImageProvider' object has no attribute 'last'
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 11:31:12.984000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 301, in main
-    robot = robot_actions.Robot()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\robot_actions.py", line 75, in __init__
-    self.camera = basic_hardware.Camera(self.arduino)
-AttributeError: 'module' object has no attribute 'Camera'
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 11:47:02.297000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 304, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 183, in mainloop
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 193, in mainloop
     self.data[name] = obj
   File "<string>", line 2, in __setitem__
   File "C:\Python27\lib\multiprocessing\managers.py", line 758, in _callmethod
@@ -58,7 +20,7 @@ END MESSAGE
 
 ~~~~~~~~~~~~~~~~~~~~~~
 Metadata:
-    Timestamp: 2013-08-23 11:53:10.187000
+    Timestamp: 2013-08-24 01:34:40.035000
     Version:   1.0.0
 
 BEGIN MESSAGE:
@@ -66,168 +28,15 @@ BEGIN MESSAGE:
 Top-level exception: Traceback (most recent call last):
   File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
     user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 304, in main
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 334, in main
     control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 183, in mainloop
-    self.data[name] = obj
-  File "<string>", line 2, in __setitem__
-  File "C:\Python27\lib\multiprocessing\managers.py", line 758, in _callmethod
-    conn.send((self._id, methodname, args, kwds))
-PicklingError: Can't pickle <type 'cv2.Capture'>: attribute lookup cv2.Capture failed
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 12:22:47.764000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 306, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 184, in mainloop
-    print(obj+", ")
-TypeError: unsupported operand type(s) for +: 'dict' and 'str'
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 12:23:40.078000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 307, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 186, in mainloop
-    self.data[name] = obj
-  File "<string>", line 2, in __setitem__
-  File "C:\Python27\lib\multiprocessing\managers.py", line 758, in _callmethod
-    conn.send((self._id, methodname, args, kwds))
-PicklingError: Can't pickle <type 'cv2.Capture'>: attribute lookup cv2.Capture failed
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 12:29:19.692000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 312, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 191, in mainloop
-    self.data[name] = obj
-  File "<string>", line 2, in __setitem__
-  File "C:\Python27\lib\multiprocessing\managers.py", line 758, in _callmethod
-    conn.send((self._id, methodname, args, kwds))
-PicklingError: Can't pickle <type 'cv2.Capture'>: attribute lookup cv2.Capture failed
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 14:34:33.275000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 310, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 160, in mainloop
-    self.setup()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 145, in setup
-    self.images.start('face')
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\sensor_analysis.py", line 277, in start
-    img = self.cam.getImage().flipHorizontal()
-  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
-    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
-error: Array should be CvMat or IplImage
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 14:37:18.442000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 310, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 160, in mainloop
-    self.setup()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 145, in setup
-    self.images.start('face')
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\sensor_analysis.py", line 277, in start
-    img = self.cam.getImage().flipHorizontal()
-  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
-    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
-error: Array should be CvMat or IplImage
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 14:55:14.350000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 310, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 160, in mainloop
-    self.setup()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 145, in setup
-    self.images.start('face')
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\sensor_analysis.py", line 277, in start
-    img = self.cam.getImage().flipHorizontal()
-  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
-    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
-error: Array should be CvMat or IplImage
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 14:55:25.210000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 310, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 192, in mainloop
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 212, in mainloop
     self.state.loop(self.data)
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 173, in loop
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 285, in loop
     next = self.state.loop(data)
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 101, in loop
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 174, in loop
     self.robot.adjust_laptop_tilt(-10)
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\robot_actions.py", line 105, in adjust_laptop_tilt
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\robot_actions.py", line 107, in adjust_laptop_tilt
     position = self.laptop_servo.position
 AttributeError: 'Robot' object has no attribute 'laptop_servo'
 
@@ -235,7 +44,7 @@ END MESSAGE
 
 ~~~~~~~~~~~~~~~~~~~~~~
 Metadata:
-    Timestamp: 2013-08-23 15:18:27.334000
+    Timestamp: 2013-08-24 01:42:30.341000
     Version:   1.0.0
 
 BEGIN MESSAGE:
@@ -243,87 +52,17 @@ BEGIN MESSAGE:
 Top-level exception: Traceback (most recent call last):
   File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
     user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 310, in main
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 334, in main
     control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 160, in mainloop
-    self.setup()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 145, in setup
-    self.images.start('face')
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\sensor_analysis.py", line 277, in start
-    img = self.cam.getImage().flipHorizontal()
-  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
-    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
-error: Array should be CvMat or IplImage
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 15:22:12.946000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 310, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 192, in mainloop
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 212, in mainloop
     self.state.loop(self.data)
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 174, in loop
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 285, in loop
     next = self.state.loop(data)
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 98, in loop
-    print("left wheel speed: "+str(robot.left_wheel.speed))
-NameError: global name 'robot' is not defined
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 15:34:35.441000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 311, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 160, in mainloop
-    self.setup()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 145, in setup
-    self.images.start('face')
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\sensor_analysis.py", line 277, in start
-    img = self.cam.getImage().flipHorizontal()
-  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
-    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
-error: Array should be CvMat or IplImage
-
-END MESSAGE
-
-~~~~~~~~~~~~~~~~~~~~~~
-Metadata:
-    Timestamp: 2013-08-23 15:35:12.509000
-    Version:   1.0.0
-
-BEGIN MESSAGE:
-
-Top-level exception: Traceback (most recent call last):
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\niftybot.py", line 134, in main
-    user_interface.main()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 311, in main
-    control.mainloop()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 160, in mainloop
-    self.setup()
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\user_interface.py", line 145, in setup
-    self.images.start('face')
-  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\sensor_analysis.py", line 277, in start
-    img = self.cam.getImage().flipHorizontal()
-  File "C:\Python27\lib\site-packages\SimpleCV\Camera.py", line 586, in getImage
-    newimg = cv.CreateImage(cv.GetSize(frame), cv.IPL_DEPTH_8U, 3)
-error: Array should be CvMat or IplImage
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\decision_making.py", line 174, in loop
+    self.robot.adjust_laptop_tilt(-10)
+  File "C:\Users\Siddharth\Documents\Programming\niftybot_master\Code\robot_actions.py", line 109, in adjust_laptop_tilt
+    position = self.laptop_servo.position
+AttributeError: 'Robot' object has no attribute 'laptop_servo'
 
 END MESSAGE
 

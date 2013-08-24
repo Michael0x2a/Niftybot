@@ -47,18 +47,21 @@ def api():
         print error
     return
     
+cam = scv.Camera(0)
+
 @app.route('/camera')
 def camera():
     try:
         if request.environ.get('wsgi.websocket'):
             ws = request.environ['wsgi.websocket']
             
-            camera = scv.Camera(0)
-            
-            image = camera.getImage().flipHorizontal().getPGSurface()
-            data = cStringIO.StringIO()
-            pygame.image.save(image, data)
-            ws.send(base64.b64encode(data.getvalue()))
+            while True:            
+                image = cam.getImage().flipHorizontal().getPIL()
+                data = cStringIO.StringIO()
+                image.save(data, 'JPEG')
+                ws.send(data.getvalue().encode("base64"))
+                data.close()
+                time.sleep(0.05)
     except Exception:
         error = traceback.format_exc()
         print error

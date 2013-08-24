@@ -439,7 +439,7 @@ class Servos(object):
                 break
             else:
                 log.debug("trying to attach servo to pin {0}".format(pin))
-        position = 20 #int(rd)
+        position = 50 #int(rd)
         self.servo_pos[pin] = position
         self.write(pin, position)
 
