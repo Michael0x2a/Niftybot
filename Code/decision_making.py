@@ -106,7 +106,7 @@ class ApproachState(object):
         
     def draw(self, data, window):
         window.draw_mood('green')
-        window.draw_text('I see you!')
+        window.draw_text('I see you!'+self.message)
             
         return None
     def end(self):

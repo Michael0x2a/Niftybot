@@ -208,6 +208,7 @@ class ControlPanel(object):
             pygame.quit()
             self.images.end()
             self.dashboard.terminate()
+            self.robot.zero_speed()
     
     def debug(self, image, features):
         self.draw_camera_feed(image)

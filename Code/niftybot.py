@@ -139,7 +139,7 @@ def main():
             errors.log('Top-level exception: ' + error)
             errors.error('The program encountered an unexpected error.\n\n' + 
                 'Please see "log.txt" for details.')
-    
+            
 # The "if __name__ == '__main__' bit is a common idiom in Python.
 # See [this Stackoverflow answer][mn] for details.
 # 
