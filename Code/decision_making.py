@@ -87,8 +87,6 @@ class ApproachState(object):
             return 'waiting'
             
         self.x_offset = centroid[0]
-<<<<<<< HEAD
-=======
         
         if self.pressed is not None:
             if self.pressed_time is None:
@@ -99,7 +97,6 @@ class ApproachState(object):
             else:
                 return 'backoff'
 
->>>>>>> Fixed issues with UI, improved decision-making, validated end-to-end performance
         if self.x_offset < 300:
             self.robot.set_left_speed(1)
             self.message = "Rotate left"
@@ -110,9 +107,8 @@ class ApproachState(object):
             self.robot.set_forward_speed(1)
             self.message = "Go forward"
 
-
-        
-<<<<<<< HEAD
+        # self.y_offset = centroid[1]
+        #
         # if self.y_offset < 220:
         #    self.robot.adjust_laptop_tilt(-10)
         # elif self.y_offset > 260:
@@ -120,17 +116,6 @@ class ApproachState(object):
         # else:
         #    pass
         
-=======
-        self.y_offset = centroid[1]        
-        
-        if self.y_offset < 220:
-            self.robot.adjust_laptop_tilt(-10)
-        elif self.y_offset > 260:
-            self.robot.adjust_laptop_tilt(10)
-        else:
-            pass
-
->>>>>>> Fixed issues with UI, improved decision-making, validated end-to-end performance
     def draw(self, data, window):
         window.draw_mood('green')
         if self.pressed == 'Yes':
