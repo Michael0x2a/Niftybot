@@ -216,9 +216,9 @@ class BackOffState(object):
     def loop(self, data):
         delta = time.time() - self.start
         if 0 < delta <= 2.5:
-            self.robot.set_speed(-0.5, 0.5)
+            self.robot.set_speed(1, 0)
         elif 2.5 < delta <= 5:
-            self.robot.set_speed(0.5, 0.5)
+            self.robot.set_speed(1, 1)
         elif delta > 5:
             return 'waiting'
 
