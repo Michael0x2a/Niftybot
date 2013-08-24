@@ -54,10 +54,13 @@ class Robot(object):
         if arduino is None:
             try:
                 self.arduino = Arduino.Arduino("9600")
+                self.kind = "Real"
             except:
                 self.arduino = basic_hardware.FakeArduino()
+                self.kind = "Fake"
         else:
             self.arduino = arduino
+            self.kind = "Passed"
 
         # if arm_servo is None:            
         #    self.arm_servo = basic_hardware.Servo(self.arduino, 5)

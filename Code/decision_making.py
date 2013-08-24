@@ -154,11 +154,11 @@ class ApproachState(object):
             if human["height"] > max_human_height:
                 max_human_height = human["height"]
         
-        if max_human_height > height*0.3:
-            self.robot.stop()   
-            self.message = "Stopped - someone is nearby"
+        #if max_human_height > height*0.8:
+        #    self.robot.stop()   
+        #    self.message = "Stopped - someone is nearby"
         
-        else:
+        if True:
             if self.x_offset < width * 0.4:
                 self.robot.set_left_speed(1)
                 self.message = "Rotate left"
