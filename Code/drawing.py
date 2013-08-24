@@ -1,4 +1,11 @@
 #!/usr/bin/env python
+'''
+# drawing.py #
+
+This class contains some helper classes used to draw to the 
+screen. It also adds in a few helpful widgets such as buttons and 
+centered text.
+'''
 
 import pygame
 

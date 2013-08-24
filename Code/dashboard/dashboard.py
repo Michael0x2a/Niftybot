@@ -4,6 +4,21 @@
 
 ## Introduction ##
 
+This file acts as the webserver for niftybot, and displays diagnostic 
+information and a video stream, and even lets you control the robot.
+
+To get information, go to:
+
+    ip_address:5000
+
+For the video stream (which will heavily stress the server):
+
+    ip_address:5000/webcam
+
+To control the robot:
+
+    ip_address:5000/control
+
 ## Confusing bits ##
 
 ## Dependencies ##
