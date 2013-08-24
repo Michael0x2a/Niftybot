@@ -78,8 +78,8 @@ class Robot(object):
         self.right_wheel = basic_hardware.Motor(self.arduino, "right")
         
     def set_speed(self, left, right):
-        self.left_wheel.set_speed(left*0.6)
-        self.right_wheel.set_speed(0.5*right*0.6)
+        self.left_wheel.set_speed(left)
+        self.right_wheel.set_speed(right*0.5)
         return self
         
     def set_forward_speed(self, speed=1):
