@@ -56,11 +56,12 @@ def camera():
             ws = request.environ['wsgi.websocket']
             
             while True:            
-                image = cam.getImage().flipHorizontal().getPGSurface()
+                image = cam.getImage().flipHorizontal().getPIL()
                 data = cStringIO.StringIO()
-                pygame.image.save(image, data)
-                ws.send(base64.b64encode(data.getvalue()))
-                time.sleep(0.5)
+                image.save(data, 'JPEG')
+                ws.send(data.getvalue().encode("base64"))
+                data.close()
+                time.sleep(0.05)
     except Exception:
         error = traceback.format_exc()
         print error

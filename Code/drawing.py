@@ -20,7 +20,7 @@ class Window(object):
         self.width, self.height = self.screen.get_size()
 
         pygame.display.set_caption("Niftybot")
-        self.font = pygame.font.SysFont("arial", 120)
+        self.font = pygame.font.SysFont("Segoe UI Light", 90, False, False)
 
     def draw_mood(self, mood):
         self.screen.fill(Window.MOODS[mood])
@@ -33,7 +33,7 @@ class Window(object):
             text_width = text_surface.get_width()
             self.screen.blit(
                 text_surface,
-                (int(self.width / 2) - int(text_width / 2), index * 130 + start_height))
+                (int(self.width / 2) - int(text_width / 2), index * 100 + start_height))
 
     def draw_button(self, button):
         pygame.draw.rect(
@@ -58,7 +58,7 @@ class Button(object):
     def __init__(self, text, position, font_size=80):
         self.text = text
         self.font_size = font_size
-        self.font = pygame.font.SysFont("arial", font_size)
+        self.font = pygame.font.SysFont("segoe ui light", font_size)
         self.text_surface = self.font.render(self.text, True, (255, 255, 255))
         self.width, self.height = self.text_surface.get_size()
         x, y = position
@@ -74,9 +74,9 @@ class Button(object):
 
 def make_buttons(window, *text):
     num = len(text)
-    fontsize = 80
+    fontsize = 40
     delta = window.width / float(num + 1)
-    button_offset = int(window.height * 0.8)
+    button_offset = int(window.height * 0.6)
     x_coords = [int(delta * (i + 1)) for i in range(num)]
     buttons = [Button(t, (xpos, button_offset)) for (t, xpos) in zip(text, x_coords)]
     return buttons

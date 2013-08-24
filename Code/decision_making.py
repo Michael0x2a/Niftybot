@@ -40,10 +40,48 @@ After reading this file, move on to `user_interface.py
 
 import math
 import time
+import socket
 
 import sensor_analysis
 import robot_actions
 import drawing
+
+class StartupState(object):
+    '''Displays startup info.'''
+    def __init__(self, robot):
+        self.name = 'startup'
+        self.message = 'Displaying startup info.'
+        self.robot = robot
+        self.wait_time = 30
+
+    def startup(self):
+        self.robot.set_speed(0, 0)
+        self.proceed = False
+        self.start = time.time()
+
+    def loop(self, data):
+        if self.proceed:
+            return 'waiting'
+        if time.time() - self.start > self.wait_time:
+            return 'waiting'
+
+    def draw(self, data, window):
+        window.draw_mood('aqua')
+        window.draw_text(
+            'Webserver address:',
+            socket.gethostbyname(socket.gethostname()) + ':5000',
+            'Starting in {0:.1f} sec'.format(self.wait_time - (time.time() - self.start)))
+        buttons = drawing.make_buttons(window, "Continue")
+        for button in buttons:
+            window.draw_button(button)
+            if button.is_pressed(data.get('mousepress', [0, 0])):
+                self.proceed = True
+            if self.proceed:
+                window.draw_filled_button(button)
+
+    def end(self):
+        pass
+
 
 class WaitingState(object):
     '''Waits for a human to appear, then starts the `approach` state'''
@@ -53,7 +91,7 @@ class WaitingState(object):
         self.robot = robot
         
     def startup(self):
-        pass
+        self.robot.set_speed(-0.1, 0.1)
         
     def loop(self, data):
         if len(data.get('humans', [])) > 0:
@@ -81,21 +119,22 @@ class ApproachState(object):
         self.x_offset = 0
 
     def loop(self, data):
+        if self.pressed is not None:
+            self.robot.set_speed(0, 0)
+            if self.pressed_time is None:
+                self.pressed_time = time.time()
+            delta = time.time() - self.pressed_time
+            if delta < 5:
+                return
+            else:
+                return 'backoff'
+
         humans = data.get('humans', [])
         centroid = sensor_analysis.get_centroid(humans)
         if len(humans) == 0:
             return 'waiting'
             
         self.x_offset = centroid[0]
-        
-        if self.pressed is not None:
-            if self.pressed_time is None:
-                self.pressed_time = time.time()
-            delta = time.time() - self.pressed_time
-            if delta < 2:
-                return
-            else:
-                return 'backoff'
 
         if self.x_offset < 300:
             self.robot.set_left_speed(1)
@@ -149,11 +188,11 @@ class BackOffState(object):
 
     def loop(self, data):
         delta = time.time() - self.start
-        if 0 < delta <= 5:
+        if 0 < delta <= 2.5:
             self.robot.set_speed(-0.5, 0.5)
-        elif 5 < delta <= 10:
+        elif 2.5 < delta <= 5:
             self.robot.set_speed(0.5, 0.5)
-        elif delta > 10:
+        elif delta > 5:
             return 'waiting'
 
     def draw(self, data, window):
@@ -215,8 +254,9 @@ class StateMachine(object):
         self.states = states
         self.suspended = None
         
+    def start(self):
         self.state.startup()
-        
+
     def loop(self, data):
         next = self.state.loop(data)
         next = self.intercept_manual_control(data, next)
@@ -245,11 +285,12 @@ class StateMachine(object):
 def startup(robot):
     '''This is a convenience method to create a new `StateMachine` object.'''
     states = {
+        'startup': StartupState(robot),
         'waiting': WaitingState(robot),
         'approach': ApproachState(robot),
         'manual': ManualControlState(robot),
         'backoff': BackOffState(robot),
     }
-    return StateMachine(robot, 'waiting', states)
+    return StateMachine(robot, 'startup', states)
             
                 

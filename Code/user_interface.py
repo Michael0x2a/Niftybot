@@ -140,6 +140,8 @@ class ControlPanel(object):
                 robot_actions.Robot))
         ]
                 
+        self.state.start()
+
         self.cam = scv.Camera(1)
         self.images = sensor_analysis.ImageProvider(self.cam)
         self.is_manual = False
@@ -153,6 +155,7 @@ class ControlPanel(object):
         self.data = multiprocessing.Manager().dict()
         self.dashboard = dashboard.Dashboard('dashboard', self.data, self.mailbox)
         self.dashboard.start()
+
         
         
     def mainloop(self):
