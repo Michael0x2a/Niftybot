@@ -159,7 +159,7 @@ class ControlPanel(object):
                 self.data, 
                 self.mailbox, 
                 self.image_queue, 
-                (640, 480))
+                self.images.size)
         self.dashboard.start()
 
         
@@ -177,6 +177,7 @@ class ControlPanel(object):
         self.data['rotate'] = 0
         self.data['manual'] = False
         self.data['mousepress'] = None
+        self.data['image_size'] = self.images.size
         
         try:    
             while True:

@@ -136,10 +136,13 @@ class ApproachState(object):
             
         self.x_offset = centroid[0]
 
-        if self.x_offset < (320 - 50):
+        self.center = data.get('image_size', [640, 480])
+        width = self.center[0]
+
+        if self.x_offset < width * 0.40:
             self.robot.set_left_speed(1)
             self.message = "Rotate left"
-        elif self.x_offset > (320 + 50):
+        elif self.x_offset > width * 0.60:
             self.robot.set_right_speed(1)
             self.message = "Rotate right"
         else:

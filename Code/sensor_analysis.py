@@ -275,7 +275,7 @@ class ImageProvider(object):
         arbitrary number of objects.
         '''
         img = self.cam.getImage().flipHorizontal()
-        size = img.size()
+        self.size = img.size()
 
         self.features_queue = multiprocessing.Queue()
         
@@ -285,7 +285,7 @@ class ImageProvider(object):
         self.message_queue = multiprocessing.Queue()
         
         self.worker = multiprocessing.Process(target=_get_features, args=(
-            self.features_queue, self.images_queue, self.message_queue, size, 0.5, feature))
+            self.features_queue, self.images_queue, self.message_queue, self.size, 0.5, feature))
         self.worker.start()
         
     def get_features(self):

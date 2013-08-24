@@ -60,7 +60,11 @@ class Dashboard(multiprocessing.Process):
 
             @app.route('/webcam', methods=['GET'])
             def webcam():
-                return flask.render_template('webcam.html', name="Video feed :: Niftybot")
+                return flask.render_template(
+                    'webcam.html', 
+                    name="Video feed :: Niftybot",
+                    width=self.image_size[0],
+                    height=self.image_size[1])
 
             @app.route('/control', methods=['GET'])
             def control():
