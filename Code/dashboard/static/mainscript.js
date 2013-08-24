@@ -91,16 +91,42 @@ function getPosition(e) {
     return {"x": x, "y": y};
 };
 
-function updateRobot(name, value) {
+function updateData(data) {
     $.ajax({
         url: url + "/state/straight",
         type: 'PUT',
         contentType: 'application/json',
-        data: JSON.stringify({"value": value, "name": name}),
+        data: JSON.stringify({"data": data}),
         dataType: 'json',
-        success: function(response) {
-        }
+        async: true
     });
+}
+
+function calculateRelativePosition(canvasObj, pos) {
+    return {
+        "x": pos.x / canvasObj.width * 2 - 1,
+        "y": pos.y / canvasObj.height * -2 + 1,
+        "original": pos
+    };
+}
+
+function drawManual(canvasObj, position) {
+    canvasObj.context.setTransform(1, 0, 0, 1, 0, 0);
+    canvasObj.context.clearRect(
+        0,
+        0,
+        canvasObj.width,
+        canvasObj.height);
+    canvasObj.context.restore();
+    canvasObj.context.beginPath();
+    canvasObj.context.arc(
+        position.original.x, 
+        position.original.y, 
+        10,         // radius
+        0,          // start angle
+        Math.PI * 2,
+        true);
+    canvasObj.context.fill();
 }
 
 function setupControls() {
@@ -116,11 +142,51 @@ function setupControls() {
         "centery": canvas.width/2
     };
     
-    $("#" + htmlId).click(function(event) {
-        position = getPosition(event);
-        updateRobot("manual", true);
-        updateRobot("straight", 1.0);
+    var isClicked = false;
+    var position = {"x": 0, "y": 0, "original": {
+        "x": canvasObj.centerx, 
+        "y": canvasObj.centery
+    }};
+
+    var handlePress = function(event) {
+        if (!isClicked) {
+            return;
+        }
+
+        position = calculateRelativePosition(
+            canvasObj,
+            getPosition(event));
+    }
+    
+    $('#' + htmlId).mousedown(function() { isClicked = true; });
+    $(document).mouseup(function() { 
+        isClicked = false; 
+        
+        position = {"x": 0, "y": 0, "original": {
+            "x": canvasObj.centerx, 
+            "y": canvasObj.centery
+        }};
+
+        updateData([
+            ["straight", position.y],
+            ["rotate", position.x]
+        ]);
+        drawManual(canvasObj, position);
     });
+
+    $("#" + htmlId).mousemove(handlePress);
+
+    window.setInterval(function() {
+        if (position.x == 0 && position.y == 0) {
+            return;
+        }
+
+        drawManual(canvasObj, position);
+        updateData([
+            ["straight", position.y],
+            ["rotate", position.x]
+        ]);
+    }, 100);
 }
 
 var isManualEnabled = false;
@@ -129,10 +195,12 @@ function toggleManual(htmlId) {
     $(htmlId).click(function(event){
         if (isManualEnabled) {
             $(htmlId).html("Turn manual on?");
-            updateRobot('manual', false);
+            $(htmlId).addClass('off').removeClass('on');
+            updateData([['manual', false]]);
         } else {
             $(htmlId).html("Turn manual off?");
-            updateRobot('manual', true);
+            $(htmlId).addClass('on').removeClass('off');
+            updateData([['manual', true]]);
         }
         isManualEnabled = !isManualEnabled;
     });

@@ -71,7 +71,6 @@ class Robot(object):
         
         self.left_wheel = basic_hardware.Motor(self.arduino, "left")
         self.right_wheel = basic_hardware.Motor(self.arduino, "right")
-        self.camera = basic_hardware.Camera(self.arduino)
         
     def set_speed(self, left, right):
         self.left_wheel.set_speed(left)

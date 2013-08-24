@@ -21,24 +21,20 @@
             <h1>{{ name }}</h1>
         </div>
         <div id="widgets">
-            <div class="widget" id="video-widget">
-                <h2>Video feed</h2>
-                <div id="video">
-                    <p>Video here</p>
+            <div id="control-tab">
+                <div class="widget" id="control-widget">
+                    <h2>Control</h2>
+                    <div id="toggle-manual" class="button off">Turn manual on?</div>
+                    <canvas class="control" id="wheels" width="200" height="200"></canvas>
                 </div>
             </div>
+
             <div id="debug-tab">
                 <div class="widget" id="robot-widget">
                     <h2>Robot state</h2>
                     <div id="robot-state"></div>
                 </div>
             </div>
-        </div>
-
-        <div id="control">
-            <h2>Control</h2>
-            <div id="toggle-manual" class="button off">Turn manual on?</div>
-            <canvas class="control" id="wheels" width="200" height="200"></canvas>
         </div>
     </div>
 </body>

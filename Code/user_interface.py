@@ -129,12 +129,17 @@ class ControlPanel(object):
         self.font = pygame.font.SysFont("arial", 12)
 
         self.to_inspect = [
-        #    ('robot', self.robot, 2, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera)), 
-        #    ('state', self.state, 3, (Arduino.Arduino, basic_hardware.FakeArduino, scv.Camera, robot_actions.Robot))]
-        
+            ('robot', self.robot, 2, (
+                Arduino.Arduino, 
+                basic_hardware.FakeArduino, 
+                scv.Camera)), 
+            ('state', self.state, 3, (
+                Arduino.Arduino, 
+                basic_hardware.FakeArduino, 
+                scv.Camera, 
+                robot_actions.Robot))
         ]
                 
-        
         self.cam = scv.Camera(1)
         self.images = sensor_analysis.ImageProvider(self.cam)
         self.is_manual = False
@@ -177,7 +182,6 @@ class ControlPanel(object):
                 #I/O: Remotely: from web interface
                 while not self.mailbox.empty():
                     name, value = self.mailbox.get_nowait()
-                    print "PP", name, value
                     self.data[name] = value
                 
                 # Processing
@@ -189,9 +193,6 @@ class ControlPanel(object):
                 self.data['mousepress'] = mousepress
                 
                 for name, obj in self.get_inspected():
-                    print(name)
-                    print(obj)
-                    print(", ")
                     self.data[name] = obj
                 
                 # Handling decisions

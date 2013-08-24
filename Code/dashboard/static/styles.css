@@ -91,10 +91,10 @@ li{
 
 .button{
     width:10em;
-    height:10em;
     margin:0 .5em .5em 0;
-    padding:.2em;
+    padding:.5em;
     color:#fff;
+    text-align:center;
 }
 
 .off{
@@ -102,6 +102,6 @@ li{
 }
 
 .on{
-    background-color:#00f;
+    background-color:rgb(109, 209, 105);
 }
 

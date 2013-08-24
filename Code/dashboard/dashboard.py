@@ -60,15 +60,9 @@ class Dashboard(multiprocessing.Process):
                             "success": True, 
                             name: self.data[name]}))
                     else:
-                        name = flask.request.json['name']
-                        value = flask.request.json['value']
-                        #self.data[name] = value
-                        self.mailbox.put_nowait([name, value])
-                        print name, value
-                        #try:
-                        #    self.data[name] = float(value)
-                        #except ValueError:
-                        #    self.data[name] = value
+                        data = flask.request.json['data']
+                        for name, value in data:
+                            self.mailbox.put_nowait([name, value])
                         return flask.jsonify({"success": True})
                 except:
                     error = traceback.format_exc()

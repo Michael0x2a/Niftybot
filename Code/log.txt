@@ -1,0 +1,21 @@
+Metadata:
+    Timestamp: 2013-08-23 20:07:45.112000
+    Version:   1.0.0
+
+BEGIN MESSAGE:
+
+Top-level exception: Traceback (most recent call last):
+  File ".\niftybot.py", line 134, in main
+    user_interface.main()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 317, in main
+    control.mainloop()
+  File "C:\Users\Michael\Dropbox\Projects\Code\Programs\Niftybot\Code\user_interface.py", line 193, in mainloop
+    self.data[name] = obj
+  File "<string>", line 2, in __setitem__
+  File "C:\Python27\lib\multiprocessing\managers.py", line 758, in _callmethod
+    conn.send((self._id, methodname, args, kwds))
+PicklingError: Can't pickle <type 'cv2.Capture'>: attribute lookup cv2.Capture failed
+
+END MESSAGE
+
+~~~~~~~~~~~~~~~~~~~~~~
