@@ -149,7 +149,8 @@ class ControlPanel(object):
         # Currently detects the face. See the source code of 
         # `sensor_analysis.find_human_features` for a full list of possible
         # features.
-        self.images.start('upper_body')
+        #self.images.start('upper_body')
+        self.images.start('face')
         
         self.mailbox = multiprocessing.Queue()
         self.image_queue = multiprocessing.Queue(maxsize=1)
@@ -231,7 +232,7 @@ class ControlPanel(object):
             self.robot.zero_speed()
     
     def debug(self, image, features):
-        self.draw_camera_feed(image)
+        self.draw_camera_feed(image.flipHorizontal())
         self.draw_features(features)
         self.draw_inspected(660, 20)
         self.heartbeat()        
